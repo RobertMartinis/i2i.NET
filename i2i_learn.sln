@@ -1,0 +1,31 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.8.34408.163
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "i2i_learn", "i2i_learn\i2i_learn.csproj", "{1792A4AC-548F-420A-9BC0-D1E910058BC0}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Debug|x64 = Debug|x64
+		Release|Any CPU = Release|Any CPU
+		Release|x64 = Release|x64
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{1792A4AC-548F-420A-9BC0-D1E910058BC0}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{1792A4AC-548F-420A-9BC0-D1E910058BC0}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{1792A4AC-548F-420A-9BC0-D1E910058BC0}.Debug|x64.ActiveCfg = Debug|x64
+		{1792A4AC-548F-420A-9BC0-D1E910058BC0}.Debug|x64.Build.0 = Debug|x64
+		{1792A4AC-548F-420A-9BC0-D1E910058BC0}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{1792A4AC-548F-420A-9BC0-D1E910058BC0}.Release|Any CPU.Build.0 = Release|Any CPU
+		{1792A4AC-548F-420A-9BC0-D1E910058BC0}.Release|x64.ActiveCfg = Release|x64
+		{1792A4AC-548F-420A-9BC0-D1E910058BC0}.Release|x64.Build.0 = Release|x64
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {3AD94849-2DE7-4074-8549-BC9E14FD8DD5}
+	EndGlobalSection
+EndGlobal
