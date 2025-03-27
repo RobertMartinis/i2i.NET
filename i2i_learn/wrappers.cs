@@ -14,7 +14,7 @@ namespace i2i_learn
 {
     internal class wrappers
     {
-        public static double[,] timeAlignment(ConcurrentBag<double[]> timeBag, ArrayList intensityList, ConcurrentBag<int> indexBag, double tmax)
+        public static double[,] TimeAlignment(ConcurrentBag<double[]> timeBag, ArrayList intensityList, ConcurrentBag<int> indexBag, double tmax)
         {
 
 
