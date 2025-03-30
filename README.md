@@ -1,4 +1,6 @@
-<img src="https://github.com/user-attachments/assets/3f6814a0-8873-4f62-99e7-be86446a3395" width=25% height=25%>
+<p align="center">
+  <img width="260" height="260" src="https://github.com/user-attachments/assets/3f6814a0-8873-4f62-99e7-be86446a3395">
+</p>
 
 ---
 A .NET port of [Ion to Image, i2i](https://github.com/LanekoffLab/i2i). It is currently a work in progress. The goal is to convert the original application from requiring a MATLAB-license to run. 
