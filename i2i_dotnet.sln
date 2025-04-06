@@ -3,7 +3,7 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
 VisualStudioVersion = 17.8.34408.163
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "i2i_learn", "i2i_learn\i2i_learn.csproj", "{1792A4AC-548F-420A-9BC0-D1E910058BC0}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "i2i_dotnet", "i2i_dotnet\i2i_dotnet.csproj", "{1792A4AC-548F-420A-9BC0-D1E910058BC0}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
