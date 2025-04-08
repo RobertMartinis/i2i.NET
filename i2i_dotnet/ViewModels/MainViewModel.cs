@@ -31,7 +31,7 @@ namespace i2i_dotnet.ViewModels
                 string filePath = dialog.FileName;
                 System.Diagnostics.Debug.WriteLine(File.Exists(filePath));
 
-                _rawService.LoadFileToMSSpectra(filePath);
+                var msSpectrum = _rawService.LoadFileToMSSpectra(filePath)
 
             }
         }

@@ -1,6 +1,6 @@
 ﻿using i2i_learn.Data;
 using ThermoFisher.CommonCore.RawFileReader;
-
+using ThermoFisher.CommonCore.Data.Business;
 namespace i2i_dotnet.Services
 {
     /// <summary>
@@ -20,16 +20,30 @@ namespace i2i_dotnet.Services
            
             var rawFile = RawFileReaderAdapter.FileFactory(filePath);
 
-            for (int i = 0; i < rawFile.RunHeaderEx.SpectraCount; i++)
+            rawFile.SelectInstrument(Device.MS, 1);
+
+            for (int i = 1; i < rawFile.RunHeaderEx.SpectraCount; i++)
             { 
-                
-                var centroidStream = rawFile.GetCentroidStream(i, false);
 
+                var scanStatistics = rawFile.GetScanStatsForScanNumber(i);
                 string scanFilter = rawFile.GetFilterForScanNumber(i).ToString();
+                if (scanStatistics.IsCentroidScan && scanStatistics.SpectrumPacketType == SpectrumPacketType.FtCentroid)
+                {
+                    var centroidStream = rawFile.GetCentroidStream(i, false);
+                    
+                    MSSpectrum spectra = new MSSpectrum(i, centroidStream.Masses, centroidStream.Intensities, scanFilter);
 
-                MSSpectrum spectra = new MSSpectrum(i, centroidStream.Masses, centroidStream.Intensities, scanFilter);
+                    rawFileSpectrums.Add(spectra);
+                }
 
-                rawFileSpectrums.Add(spectra);
+                else
+                {
+                    var segmentedScan = rawFile.GetSegmentedScanFromScanNumber(i, scanStatistics);
+
+                    MSSpectrum spectra = new MSSpectrum(i, segmentedScan.Positions, segmentedScan.Intensities, scanFilter);
+
+                    rawFileSpectrums.Add(spectra);
+                }
             
             }
 
