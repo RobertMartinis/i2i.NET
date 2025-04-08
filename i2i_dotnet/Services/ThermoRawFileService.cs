@@ -1,6 +1,7 @@
 ﻿using i2i_learn.Data;
 using ThermoFisher.CommonCore.RawFileReader;
 using ThermoFisher.CommonCore.Data.Business;
+using System.IO;
 namespace i2i_dotnet.Services
 {
     /// <summary>
@@ -14,7 +15,7 @@ namespace i2i_dotnet.Services
         /// </summary>
         /// <param name="filePath">String to the path of a .raw file.</param>
         /// <returns>A populated MSSpectrum.</returns>
-        public List<MSSpectrum> LoadFileToMSSpectra(string filePath)
+        private List<MSSpectrum> LoadFileToMSSpectra(string filePath)
         {
             List<MSSpectrum> rawFileSpectrums = new List<MSSpectrum>();
            
@@ -49,6 +50,34 @@ namespace i2i_dotnet.Services
 
             return rawFileSpectrums;
         }
+        /// <summary>
+        /// Function to load .raw files from a folder. 
+        /// </summary>
+        /// <param name="folderPath">Path to the folder containing .raw files.</param>
+        /// <returns>A 2D-list of MSSpectrum objects, where the first index is a row and second index a spectra in that row.</returns>
+        public List<List<MSSpectrum>> LoadRawFilesFromFolder(string folderPath)
+        {
+            var allSpectra = new List<List<MSSpectrum>>();
+
+            var rawDirectories = Directory.GetFiles(folderPath, "*.raw");
+
+            foreach (var rawDir in rawDirectories)
+            {
+                try
+                {
+                    List <MSSpectrum> spectrumFromFile = LoadFileToMSSpectra(rawDir);    
+                    allSpectra.Add(spectrumFromFile);
+                }
+                catch (Exception ex)
+                {
+                    System.Diagnostics.Debug.WriteLine($"Failed to load {rawDir}: {ex.Message}");
+                }
+            }
+
+            return allSpectra;
+        }
+
+
     }
 
 }

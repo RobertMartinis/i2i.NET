@@ -4,6 +4,7 @@ using i2i_dotnet.Helpers;
 using i2i_dotnet.Services;
 using System;
 using System.IO;
+using System.Windows.Forms;
 
 namespace i2i_dotnet.ViewModels
 {
@@ -16,24 +17,24 @@ namespace i2i_dotnet.ViewModels
         public MainViewModel()
         {
             _rawService = new ThermoRawFileService();
-            LoadRawCommand = new RelayCommand(LoadRawFile);
+            LoadRawCommand = new RelayCommand(LoadRawFilesFromFolder);
         }
 
-        private void LoadRawFile()
+        private void LoadRawFilesFromFolder()
         {
-            var dialog = new OpenFileDialog
-            {
-                Filter = "Thermo RAW files (*.raw)|*.raw",
-                Multiselect = false
-            };
-            if (dialog.ShowDialog() == true)
-            {
-                string filePath = dialog.FileName;
-                System.Diagnostics.Debug.WriteLine(File.Exists(filePath));
+            using var dialog = new FolderBrowserDialog();
 
-                var msSpectrum = _rawService.LoadFileToMSSpectra(filePath)
+            if (dialog.ShowDialog() == DialogResult.OK)
+            {
+                string folderPath = dialog.SelectedPath;
 
+                var spectraGroups = _rawService.LoadRawFilesFromFolder(folderPath);
+
+               
+               System.Diagnostics.Debug.WriteLine("Finished");
+             
             }
         }
+
     }
 }
