@@ -1,12 +1,6 @@
 ﻿using i2i_learn.Data;
-using ThermoFisher.CommonCore.Data;
-using ThermoFisher.CommonCore.Data.Business;
-using ThermoFisher.CommonCore.Data.Interfaces;
 using ThermoFisher.CommonCore.RawFileReader;
-using System.Diagnostics;
-using Emgu.CV.Features2D;
-using System.Xml.Linq;
-using System.IO;
+
 namespace i2i_dotnet.Services
 {
     /// <summary>
@@ -15,16 +9,32 @@ namespace i2i_dotnet.Services
     /// 
     class ThermoRawFileService
     {
-
-        public List<MSSpectrum> Spectra { get; private set; } = new List<MSSpectrum>();
-
-     
-        public void LoadFileToMSSpectra(string filePath)
+        /// <summary>
+        /// Reads a Thermo raw file, and converts the contents to a MSSpectrum data type. 
+        /// </summary>
+        /// <param name="filePath">String to the path of a .raw file.</param>
+        /// <returns>A populated MSSpectrum.</returns>
+        public List<MSSpectrum> LoadFileToMSSpectra(string filePath)
         {
-
+            List<MSSpectrum> rawFileSpectrums = new List<MSSpectrum>();
+           
             var rawFile = RawFileReaderAdapter.FileFactory(filePath);
 
+            for (int i = 0; i < rawFile.RunHeaderEx.SpectraCount; i++)
+            { 
+                
+                var centroidStream = rawFile.GetCentroidStream(i, false);
+
+                string scanFilter = rawFile.GetFilterForScanNumber(i).ToString();
+
+                MSSpectrum spectra = new MSSpectrum(i, centroidStream.Masses, centroidStream.Intensities, scanFilter);
+
+                rawFileSpectrums.Add(spectra);
+            
+            }
+
+            return rawFileSpectrums;
         }
     }
-}
 
+}

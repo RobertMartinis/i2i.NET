@@ -33,7 +33,7 @@ namespace i2i_learn.Data
         /// <summary>
         /// List of scanfilters contained in this spectrum.
         /// </summary>
-        public readonly List<string> ScanFilters;
+        public readonly string ScanFilter;
 
         /// <summary>
         /// This Spectrums total ion count.
@@ -49,7 +49,7 @@ namespace i2i_learn.Data
             ScanNumber = scanNumber;
             MZList = new List<double>();
             Intensities = new List<double>();
-            ScanFilters = new List<string>();
+            ScanFilter = "";
         }
         /// <summary>
         /// Constructor for MSSpectrum that sets the scan number, m/z list, intensities and scanfilters.
@@ -58,17 +58,12 @@ namespace i2i_learn.Data
         /// <param name="mzlist">A list of all m/z in this spectrum.</param>
         /// <param name="intensities">A list of all intensities in this spectrum.</param>
         /// <param name="scanfilters">A list of all scanfilters in this spectrum.</param>
-        public MSSpectrum(int scanNumber, IList<double> mzlist, IList<double> intensities, IList<string> scanfilters)
+        public MSSpectrum(int scanNumber, IList<double> mzlist, IList<double> intensities, string scanfilter)
             : this(scanNumber)
         {
             MZList.Capacity = mzlist.Count;
             Intensities.Capacity = intensities.Count;
-            ScanFilters.Capacity = scanfilters.Count;
-
-            for (int i = 0; i < scanfilters.Count; i++)
-            {
-                ScanFilters.Add(scanfilters[i]);
-            }
+            ScanFilter = scanfilter;
 
             for (int i = 0; i <mzlist.Count; i++)
             {  MZList.Add(mzlist[i]);

@@ -30,25 +30,9 @@ namespace i2i_dotnet.ViewModels
             {
                 string filePath = dialog.FileName;
                 System.Diagnostics.Debug.WriteLine(File.Exists(filePath));
-                try
-                {
-                    _rawService.LoadFileToMSSpectra(filePath);
 
-                    // Optional: Notify UI or bind to Spectra result
-                    var first = _rawService.Spectra.FirstOrDefault();
-                    if (first != null)
-                    {
-                        System.Diagnostics.Debug.WriteLine($"Loaded scan #{first.ScanNumber} with {first.MzCount} peaks.");
-                    }
+                _rawService.LoadFileToMSSpectra(filePath);
 
-                    else {
-                        System.Diagnostics.Debug.WriteLine("Error");
-                            }
-                }
-                catch (Exception ex)
-                {
-                    System.Diagnostics.Debug.WriteLine($"Error loading RAW file: {ex.Message}");
-                }
             }
         }
     }
