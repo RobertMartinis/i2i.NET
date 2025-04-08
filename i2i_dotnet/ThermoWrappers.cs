@@ -1,4 +1,4 @@
-﻿using System.Collections;
+﻿/*using System.Collections;
 using System;
 using MathNet.Numerics.LinearAlgebra;
 using ThermoFisher.CommonCore.Data;
@@ -19,7 +19,7 @@ namespace i2i_learn
 
         public static (double[] intensities, double[] time) LoadFileSingle(string fileNameInput, string selectedFilter)
         {
-            
+
             var rawFile = RawFileReaderFactory.ReadFile(fileNameInput);
 
 
@@ -30,7 +30,7 @@ namespace i2i_learn
 
             int firstScanNumber = rawFile.RunHeaderEx.FirstSpectrum;
             int lastScanNumber = rawFile.RunHeaderEx.LastSpectrum;
-            
+
             ChromatogramTraceSettings settings = new ChromatogramTraceSettings(TraceType.MassRange)
             {
                 Filter = selectedFilter,
@@ -127,7 +127,7 @@ namespace i2i_learn
             var millionfactor = Vector256.Create<double>(1000000);
             var ppmFactor = Avx.Divide(millionfactor, comparitorVector);
             // Iterate through the array in blocks of 4, processing with AVX256
-            
+
             for (int i = 0; i <= arrayMz.Length - 4; i += 4)
             {
                 var mzVector = Vector256.Create(arrayMz[i], arrayMz[i + 1], arrayMz[i + 2], arrayMz[i + 3]);
@@ -154,16 +154,16 @@ namespace i2i_learn
         {
             var basecase = RawFileReaderAdapter.ThreadedFileFactory(fileNameInput);
             IRawDataExtended rawFile = basecase.CreateThreadAccessor();
-            
+
             //rawFile.SelectInstrument(Device.MS, 1);
 
-            
+
             return (rawFile);
         }
 
         public static (double[], double[]) GetEIC(double mzval, IRawDataPlus file, string filterApp, double tolerance_num, string unit)
         {
-            
+
             MassOptions tolerance = new MassOptions() { Tolerance = tolerance_num, ToleranceUnits = ToleranceUnits.ppm };
 
             switch (unit)
@@ -178,28 +178,28 @@ namespace i2i_learn
                     tolerance.ToleranceUnits = ToleranceUnits.amu;
                     break;
             }
-               
 
-   
+
+
             file.SelectInstrument(Device.MS, 1);
             // Define the settings for getting the Base Peak chromatogram
             ChromatogramTraceSettings settings = new ChromatogramTraceSettings(TraceType.MassRange)
             {
                 Filter = filterApp,
-                MassRanges = new[] {new Range(mzval, mzval) }
+                MassRanges = new[] { new Range(mzval, mzval) }
             };
-            
-            
+
+
             // Get the chromatogram from the RAW file. 
-            
+
             var data = file.GetChromatogramData(new IChromatogramSettings[] { settings }, -1, -1, tolerance);
-            
-            
-            
+
+
+
             double[] intensitiy_vector = data.IntensitiesArray[0];
             double[] time_vector = data.PositionsArray[0];
             file.Dispose();
-            return (intensitiy_vector,time_vector);
+            return (intensitiy_vector, time_vector);
         }
 
         private static ChromatogramSignal[] GetUnfilteredTic(IRawFileThreadManager manager)
@@ -224,3 +224,4 @@ namespace i2i_learn
 
     }
 }
+*/

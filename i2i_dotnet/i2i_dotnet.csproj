@@ -5,12 +5,14 @@
 		<UseWPF>true</UseWPF>
 		<Nullable>enable</Nullable>
 		<ImplicitUsings>enable</ImplicitUsings>
-		<!-- REMOVE UseWindowsForms if you're only using WPF -->
-		<!-- REMOVE StartupObject to let App.xaml take control -->
 		<Platforms>AnyCPU;x64</Platforms>
 	</PropertyGroup>
-	
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
+
+	<PropertyGroup>
+		<LangVersion>10.0</LangVersion>
+	</PropertyGroup>
+
+	<PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
     <Optimize>True</Optimize>
   </PropertyGroup>
 
@@ -38,6 +40,9 @@
     <Reference Include="ThermoRawFileReader">
       <HintPath>Lib\ThermoRawFileReader.dll</HintPath>
     </Reference>
+	  <Reference Include="PRISM">
+		  <HintPath>Lib\PRISM.dll</HintPath>
+	  </Reference>
   </ItemGroup>
   
   <ItemGroup>
@@ -47,6 +52,11 @@
     <PackageReference Include="OxyPlot.Core" Version="2.2.0" />
     <PackageReference Include="OxyPlot.WindowsForms" Version="2.2.0" />
     <PackageReference Include="OxyPlot.Wpf" Version="2.2.0" />
+    <PackageReference Include="ThermoFisher.CommonCore.BackgroundSubtraction" Version="8.0.6" />
+    <PackageReference Include="ThermoFisher.CommonCore.Data" Version="8.0.6" />
+    <PackageReference Include="ThermoFisher.CommonCore.MassPrecisionEstimator" Version="8.0.6" />
+    <PackageReference Include="ThermoFisher.CommonCore.RandomAccessReaderPlugin" Version="8.0.6" />
+    <PackageReference Include="ThermoFisher.CommonCore.RawFileReader" Version="8.0.6" />
   </ItemGroup>
   
   <ItemGroup>
