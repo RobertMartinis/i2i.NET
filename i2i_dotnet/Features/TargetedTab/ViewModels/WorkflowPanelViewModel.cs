@@ -113,13 +113,27 @@ public sealed class WorkflowPanelViewModel : ObservableObject
                 ((RelayCommand)FindPeaksCommand).RaiseCanExecuteChanged();
         }
     }
+    private double _progress;
+    public double Progress
+    {
+        get => _progress;
+        private set => Set(ref _progress, value);
+    }
 
+    private bool _isLoading;
+    public bool IsLoading
+    {
+        get => _isLoading;
+        private set => Set(ref _isLoading, value);
+    }
+    
     public WorkflowPanelViewModel(IRawFileService rawfiles, IFolderDialogService folderDialog)
     {
         // NOTE: later you’ll call Services here instead of fake values.
         _rawFiles = rawfiles;
         _folderDialog = folderDialog;
-        LoadRawCommand = new RelayCommand(LoadRaw);
+        LoadRawCommand = new RelayCommand(async () => await LoadRawAsync());
+
         LoadAnalyteListCommand = new RelayCommand(LoadAnalytes, () => CanLoadAnalytes);
         FindPeaksCommand = new RelayCommand(FindPeaks, () => CanFindPeaks);
 
@@ -130,7 +144,7 @@ public sealed class WorkflowPanelViewModel : ObservableObject
         UpdateOverallStatus("Ready", Brushes.LimeGreen);
     }
 
-    private void LoadRaw()
+    private async Task LoadRawAsync()
     {
         RawState = StepState.Working;
         UpdateOverallStatus("Loading experiment...", Brushes.Gold);
@@ -139,10 +153,15 @@ public sealed class WorkflowPanelViewModel : ObservableObject
         if (string.IsNullOrEmpty(folder))
             return;
         
+        IsLoading = true;
+        Progress = 0;
         
+        var progress = new Progress<double>(p => Progress = p);
         
         // Update VM state
-        var spectra = _rawFiles.LoadRawFilesFromFolder(folder);
+        var spectra = await Task.Run(() =>
+            _rawFiles.LoadRawFilesFromFolder(folder, progress)
+        );
         FileCount = spectra.Count;
         RawState = StepState.Done;
         UpdateOverallStatus("Experiment loaded", Brushes.LimeGreen);

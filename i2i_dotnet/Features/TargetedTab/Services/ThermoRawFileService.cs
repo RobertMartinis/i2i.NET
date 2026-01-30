@@ -58,22 +58,24 @@ namespace i2i_dotnet.Features.TargetedTab.Services
     /// </summary>
     /// <param name="folderPath">Path to the folder containing .raw files.</param>
     /// <returns>A 2D-list of MSSpectrum objects, where the first index is a row and second index a spectra in that row.</returns>
-    public List<List<MSExperiment>> LoadRawFilesFromFolder(string folderPath)
+    public List<List<MSExperiment>> LoadRawFilesFromFolder(string folderPath, IProgress<double>? progress = null)
     {
         var allSpectra = new List<List<MSExperiment>>();
 
         var rawDirectories = Directory.GetFiles(folderPath, "*.raw");
 
-        foreach (var rawDir in rawDirectories)
+        for (int i = 0; i < rawDirectories.Length; i++)
         {
             try
             {
-                List<MSExperiment> spectrumFromFile = LoadFileToMsSpectra(rawDir);
+                var rawFile = rawDirectories[i];
+                List<MSExperiment> spectrumFromFile = LoadFileToMsSpectra(rawFile);
                 allSpectra.Add(spectrumFromFile);
+                progress?.Report((i + 1) * 100.0 / rawDirectories.Length);
             }
             catch (Exception ex)
             {
-                System.Diagnostics.Debug.WriteLine($"Failed to load {rawDir}: {ex.Message}");
+                System.Diagnostics.Debug.WriteLine($"Failed to load {rawDirectories[i]}: {ex.Message}");
             }
         }
 
