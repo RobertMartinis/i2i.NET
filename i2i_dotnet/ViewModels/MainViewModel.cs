@@ -1,39 +1,35 @@
 ﻿using System.Windows.Input;
 using Microsoft.Win32;
-using i2i_dotnet.Helpers;
-using i2i_dotnet.Services;
+using i2i_dotnet.Features.TargetedTab.Services;
 using System;
 using System.IO;
 using System.Windows.Forms;
+using System.Collections.Specialized;
+using System.ComponentModel;
+using i2i_dotnet.Core;
+using i2i_dotnet.Features.TargetedTab.ViewModels;
+
 
 namespace i2i_dotnet.ViewModels
 {
-    public class MainViewModel
+    public class MainViewModel : INotifyPropertyChanged
     {
-        private readonly ThermoRawFileService _rawService;
 
-        public ICommand LoadRawCommand { get; }
-
+        public TargetedTabViewModel TargetedTab { get; }
+      
         public MainViewModel()
         {
-            _rawService = new ThermoRawFileService();
-            LoadRawCommand = new RelayCommand(LoadRawFilesFromFolder);
+            var rawService = new ThermoRawFileService();
+            var folderDialog = new MahAppsFolderDialogService();
+
+            TargetedTab = new TargetedTabViewModel(rawService, folderDialog);
         }
 
-        private void LoadRawFilesFromFolder()
+        public event PropertyChangedEventHandler? PropertyChanged;
+
+        protected void OnPropertyChanged(string propertyName)
         {
-            using var dialog = new FolderBrowserDialog();
-
-            if (dialog.ShowDialog() == DialogResult.OK)
-            {
-                string folderPath = dialog.SelectedPath;
-
-                var spectraGroups = _rawService.LoadRawFilesFromFolder(folderPath);
-
-               
-               System.Diagnostics.Debug.WriteLine("Finished");
-             
-            }
+            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
         }
 
     }

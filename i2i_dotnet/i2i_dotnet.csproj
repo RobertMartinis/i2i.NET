@@ -47,6 +47,8 @@
   
   <ItemGroup>
     <PackageReference Include="Emgu.CV" Version="4.10.0.5680" />
+    <PackageReference Include="MahApps.Metro" Version="3.0.0-rc0529" />
+    <PackageReference Include="MahApps.Metro.IconPacks" Version="5.1.0" />
     <PackageReference Include="MaterialDesignThemes" Version="5.2.1" />
     <PackageReference Include="MathNet.Numerics" Version="6.0.0-beta2" />
     <PackageReference Include="OxyPlot.Core" Version="2.2.0" />
@@ -72,6 +74,16 @@
     <None Update="MainWindow.xaml">
       <Generator>MSBuild:Compile</Generator>
     </None>
+  </ItemGroup>
+  
+  <ItemGroup>
+    <Folder Include="Data\" />
+  </ItemGroup>
+  
+  <ItemGroup>
+    <Compile Update="Features\TargetedTab\ViewModels\WorkflowPanelViewModel.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
   </ItemGroup>
 
 </Project>
