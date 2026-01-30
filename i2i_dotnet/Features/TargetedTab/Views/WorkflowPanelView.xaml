@@ -5,7 +5,7 @@
     <!-- This is your existing StackPanel, unchanged -->
     <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center" Margin="10">
         <!-- Top Status Label -->
-        <Border Background="LimeGreen"
+        <Border Background = "{Binding OverallStatusBrush}"
                 CornerRadius="6"
                 BorderBrush="Black"
                 BorderThickness="1"
@@ -13,12 +13,13 @@
                 Margin="45,0,0,10"
                 Width="120"
                 HorizontalAlignment="Left">
-            <TextBlock Text="Ready"
+            <TextBlock Text="{Binding OverallStatusText}"
                        Foreground="White"
                        FontWeight="Bold"
                        TextAlignment="Center"
                        FontSize="10"
-                       HorizontalAlignment="Center"/>
+                       HorizontalAlignment="Center"
+                       />
         </Border>
 
         <!-- Main Control Grid -->
@@ -37,7 +38,7 @@
             </Grid.ColumnDefinitions>
 
             <!-- Row 1 -->
-            <Ellipse Fill="Yellow" Stroke="Black" Width="20" Height="20" Margin="5"
+            <Ellipse Fill="{Binding RawState}" Stroke="Black" Width="20" Height="20" Margin="5"
                      Grid.Row="0" Grid.Column="0" VerticalAlignment="Center"/>
             <Button Content="Load Experiment" Width="120" Margin="5" FontSize="10"
                     Foreground="White"
@@ -51,10 +52,10 @@
                      Grid.Row="0" Grid.Column="3"/>
 
             <!-- Row 2 -->
-            <Ellipse Fill="Yellow" Stroke="Black" Width="20" Height="20" Margin="5"
+            <Ellipse Fill="{Binding AnalyteState}" Stroke="Black" Width="20" Height="20" Margin="5"
                      Grid.Row="1" Grid.Column="0" VerticalAlignment="Center"/>
             <Button Content="Load Analyte List" Width="120" Margin="5"
-                    IsEnabled="False" FontSize="10"
+                    IsEnabled="{Binding CanLoadAnalytes}" FontSize="10"
                     Grid.Row="1" Grid.Column="1"/>
             <TextBlock Text="# of analytes" VerticalAlignment="Center" Margin="5"
                        Foreground="White" FontWeight="Bold"
@@ -64,7 +65,7 @@
                      Grid.Row="1" Grid.Column="3"/>
 
             <!-- Row 3 -->
-            <Ellipse Fill="Yellow" Stroke="Black" Width="20" Height="20" Margin="5"
+            <Ellipse Fill="{Binding PeaksState}" Stroke="Black" Width="20" Height="20" Margin="5"
                      Grid.Row="2" Grid.Column="0" VerticalAlignment="Center"/>
             <Button Content="Find Peaks" Width="120" Margin="5"
                     IsEnabled="False" FontSize="10"
@@ -73,7 +74,7 @@
                        Foreground="White" FontWeight="Bold"
                        Grid.Row="2" Grid.Column="2"/>
             <TextBox Text="5" Width="30" Margin="5" Foreground="White"
-                     IsReadOnly="True"
+                     IsReadOnly="False"
                      Grid.Row="2" Grid.Column="3"/>
         </Grid>
         <ProgressBar

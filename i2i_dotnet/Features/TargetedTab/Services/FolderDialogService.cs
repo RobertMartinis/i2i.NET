@@ -10,8 +10,17 @@ public class MahAppsFolderDialogService : IFolderDialogService
         {
             Title = title
         };
-
-        // ShowDialog returns bool?
+        
         return dlg.ShowDialog() == true ? dlg.FolderName : null;
+    }
+
+    public string? PickFile(string title)
+    {
+        var dlg = new OpenFileDialog
+        {
+            Title = title
+        };
+            
+        return dlg.ShowDialog() == true? dlg.FileName : null;
     }
 }

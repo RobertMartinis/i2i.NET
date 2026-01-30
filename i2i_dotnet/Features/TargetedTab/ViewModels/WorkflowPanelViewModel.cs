@@ -31,8 +31,8 @@ public sealed class WorkflowPanelViewModel : ObservableObject
     private StepState _analyteState = StepState.Idle;
     private StepState _peaksState = StepState.Idle;
 
-    private bool _canLoadAnalytes;
-    private bool _canFindPeaks;
+    private bool _canLoadAnalytes = false;
+    private bool _canFindPeaks = false;
 
     // Public bindable properties
     public int FileCount
@@ -147,7 +147,6 @@ public sealed class WorkflowPanelViewModel : ObservableObject
     private async Task LoadRawAsync()
     {
         RawState = StepState.Working;
-        UpdateOverallStatus("Loading experiment...", Brushes.Gold);
 
         var folder = _folderDialog.PickFolder("Select folder");
         if (string.IsNullOrEmpty(folder))
@@ -158,6 +157,7 @@ public sealed class WorkflowPanelViewModel : ObservableObject
         
         var progress = new Progress<double>(p => Progress = p);
         
+        UpdateOverallStatus("Loading experiment...", Brushes.Gold);
         // Update VM state
         var spectra = await Task.Run(() =>
             _rawFiles.LoadRawFilesFromFolder(folder, progress)
@@ -174,7 +174,7 @@ public sealed class WorkflowPanelViewModel : ObservableObject
     {
         AnalyteState = StepState.Working;
         UpdateOverallStatus("Loading analyte list...", Brushes.Gold);
-
+        
         // fake result
         AnalyteCount = 128;
 
