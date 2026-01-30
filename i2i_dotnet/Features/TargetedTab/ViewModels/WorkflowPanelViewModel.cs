@@ -17,12 +17,13 @@ public sealed class WorkflowPanelViewModel : ObservableObject
 {
     private readonly IRawFileService _rawFiles;
     private readonly IFolderDialogService _folderDialog;
+    private readonly IAnalyteFileService _analyteFileService;
     public ICommand LoadRawCommand { get; }
     public ICommand LoadAnalyteListCommand { get; }
     public ICommand FindPeaksCommand { get; }
     
-    private int _fileCount;
-    private int _analyteCount;
+    private int _fileCount = 0;
+    private int _analyteCount = 0;
 
     private string _overallStatusText = "Ready";
     private Brush _overallStatusBrush = Brushes.LimeGreen;
@@ -127,11 +128,12 @@ public sealed class WorkflowPanelViewModel : ObservableObject
         private set => Set(ref _isLoading, value);
     }
     
-    public WorkflowPanelViewModel(IRawFileService rawfiles, IFolderDialogService folderDialog)
+    public WorkflowPanelViewModel(IRawFileService rawfiles, IFolderDialogService folderDialog, IAnalyteFileService analyteFileService)
     {
         // NOTE: later you’ll call Services here instead of fake values.
         _rawFiles = rawfiles;
         _folderDialog = folderDialog;
+        _analyteFileService = analyteFileService;
         LoadRawCommand = new RelayCommand(async () => await LoadRawAsync());
 
         LoadAnalyteListCommand = new RelayCommand(LoadAnalytes, () => CanLoadAnalytes);
@@ -175,10 +177,14 @@ public sealed class WorkflowPanelViewModel : ObservableObject
         AnalyteState = StepState.Working;
         UpdateOverallStatus("Loading analyte list...", Brushes.Gold);
         
-        // fake result
-        AnalyteCount = 128;
+        var documentPath = _folderDialog.PickFile("Select analyte file");
+        if (string.IsNullOrEmpty(documentPath))
+            return;
+        var analyteFile = _analyteFileService.LoadAnalytes(documentPath);
 
         AnalyteState = StepState.Done;
+        
+        AnalyteCount = analyteFile.Count;
         UpdateOverallStatus("Analytes loaded", Brushes.LimeGreen);
 
         CanFindPeaks = true;

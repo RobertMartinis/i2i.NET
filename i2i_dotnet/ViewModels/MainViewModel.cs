@@ -21,8 +21,9 @@ namespace i2i_dotnet.ViewModels
         {
             var rawService = new ThermoRawFileService();
             var folderDialog = new MahAppsFolderDialogService();
+            var analyteFileService = new AnalyteFileService();
 
-            TargetedTab = new TargetedTabViewModel(rawService, folderDialog);
+            TargetedTab = new TargetedTabViewModel(rawService, folderDialog, analyteFileService);
         }
 
         public event PropertyChangedEventHandler? PropertyChanged;

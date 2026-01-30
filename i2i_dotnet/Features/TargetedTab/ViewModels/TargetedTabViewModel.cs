@@ -4,8 +4,8 @@ public class TargetedTabViewModel
 {
     public WorkflowPanelViewModel WorkflowPanel { get; }
 
-    public TargetedTabViewModel(IRawFileService raw, IFolderDialogService dialog)
+    public TargetedTabViewModel(IRawFileService raw, IFolderDialogService dialog, IAnalyteFileService analyteFileService)
     {
-        WorkflowPanel = new WorkflowPanelViewModel(raw, dialog);
+        WorkflowPanel = new WorkflowPanelViewModel(raw, dialog, analyteFileService);
     }
 }
