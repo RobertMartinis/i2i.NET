@@ -1,6 +1,6 @@
 ﻿using ClosedXML;
-using i2i_dotnet.Features.TargetedTab.Model;
 using ClosedXML.Excel;
+using i2i_dotnet.Features.TargetedTab.Models;
 
 
 namespace i2i_dotnet.Features.TargetedTab.Services;

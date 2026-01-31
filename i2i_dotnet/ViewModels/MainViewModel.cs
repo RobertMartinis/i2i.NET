@@ -1,12 +1,6 @@
-﻿using System.Windows.Input;
-using Microsoft.Win32;
-using i2i_dotnet.Features.TargetedTab.Services;
-using System;
-using System.IO;
-using System.Windows.Forms;
-using System.Collections.Specialized;
+﻿using i2i_dotnet.Features.TargetedTab.Services;
+using i2i_dotnet.Shared.Stores;
 using System.ComponentModel;
-using i2i_dotnet.Core;
 using i2i_dotnet.Features.TargetedTab.ViewModels;
 
 
@@ -22,8 +16,12 @@ namespace i2i_dotnet.ViewModels
             var rawService = new ThermoRawFileService();
             var folderDialog = new MahAppsFolderDialogService();
             var analyteFileService = new AnalyteFileService();
+            var experimentStore = new ExperimentStore();
 
-            TargetedTab = new TargetedTabViewModel(rawService, folderDialog, analyteFileService);
+            TargetedTab = new TargetedTabViewModel(rawService,
+                folderDialog,
+                analyteFileService,
+                experimentStore);
         }
 
         public event PropertyChangedEventHandler? PropertyChanged;

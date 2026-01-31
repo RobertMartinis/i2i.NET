@@ -1,8 +1,9 @@
-﻿
-using i2i_dotnet.Features.TargetedTab.Model;
-using ThermoFisher.CommonCore.RawFileReader;
+﻿using ThermoFisher.CommonCore.RawFileReader;
 using ThermoFisher.CommonCore.Data.Business;
 using System.IO;
+using i2i_dotnet.Features.TargetedTab.Models;
+using ThermoFisher.CommonCore.Data;
+
 namespace i2i_dotnet.Features.TargetedTab.Services
 {
     /// <summary>
@@ -22,7 +23,6 @@ namespace i2i_dotnet.Features.TargetedTab.Services
         List<MSExperiment> rawFileSpectrums = new List<MSExperiment>();
 
         var rawFile = RawFileReaderAdapter.FileFactory(filePath);
-
         rawFile.SelectInstrument(Device.MS, 1);
 
         for (int i = 1; i < rawFile.RunHeaderEx.SpectraCount; i++)
@@ -30,6 +30,7 @@ namespace i2i_dotnet.Features.TargetedTab.Services
 
             var scanStatistics = rawFile.GetScanStatsForScanNumber(i);
             string scanFilter = rawFile.GetFilterForScanNumber(i).ToString();
+            
             if (scanStatistics.IsCentroidScan && scanStatistics.SpectrumPacketType == SpectrumPacketType.FtCentroid)
             {
                 var centroidStream = rawFile.GetCentroidStream(i, false);
@@ -49,7 +50,7 @@ namespace i2i_dotnet.Features.TargetedTab.Services
             }
 
         }
-
+        rawFile.Dispose();
         return rawFileSpectrums;
     }
 

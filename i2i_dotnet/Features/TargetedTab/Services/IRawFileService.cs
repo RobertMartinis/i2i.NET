@@ -1,4 +1,4 @@
-﻿using i2i_dotnet.Features.TargetedTab.Model;
+﻿using i2i_dotnet.Features.TargetedTab.Models;
 
 namespace i2i_dotnet.Features.TargetedTab.Services;
 

@@ -2,6 +2,7 @@
 using System.Windows.Media;
 using i2i_dotnet.Core;
 using i2i_dotnet.Features.TargetedTab.Services;
+using i2i_dotnet.Shared.Stores;
 
 namespace i2i_dotnet.Features.TargetedTab.ViewModels;
 
@@ -18,6 +19,7 @@ public sealed class WorkflowPanelViewModel : ObservableObject
     private readonly IRawFileService _rawFiles;
     private readonly IFolderDialogService _folderDialog;
     private readonly IAnalyteFileService _analyteFileService;
+    private ExperimentStore _experimentStore;
     public ICommand LoadRawCommand { get; }
     public ICommand LoadAnalyteListCommand { get; }
     public ICommand FindPeaksCommand { get; }
@@ -128,12 +130,16 @@ public sealed class WorkflowPanelViewModel : ObservableObject
         private set => Set(ref _isLoading, value);
     }
     
-    public WorkflowPanelViewModel(IRawFileService rawfiles, IFolderDialogService folderDialog, IAnalyteFileService analyteFileService)
+    public WorkflowPanelViewModel(IRawFileService rawfiles,
+        IFolderDialogService folderDialog, 
+        IAnalyteFileService analyteFileService,
+        ExperimentStore experimentStore)
     {
         // NOTE: later you’ll call Services here instead of fake values.
         _rawFiles = rawfiles;
         _folderDialog = folderDialog;
         _analyteFileService = analyteFileService;
+        _experimentStore = experimentStore;
         LoadRawCommand = new RelayCommand(async () => await LoadRawAsync());
 
         LoadAnalyteListCommand = new RelayCommand(LoadAnalytes, () => CanLoadAnalytes);
@@ -169,6 +175,7 @@ public sealed class WorkflowPanelViewModel : ObservableObject
         UpdateOverallStatus("Experiment loaded", Brushes.LimeGreen);
 
         CanLoadAnalytes = true;
+        _experimentStore.MSExperiment = spectra;
         ((RelayCommand)LoadAnalyteListCommand).RaiseCanExecuteChanged();
     }
 
@@ -188,6 +195,8 @@ public sealed class WorkflowPanelViewModel : ObservableObject
         UpdateOverallStatus("Analytes loaded", Brushes.LimeGreen);
 
         CanFindPeaks = true;
+        
+        _experimentStore.Analytes = analyteFile;
     }
 
     private void FindPeaks()

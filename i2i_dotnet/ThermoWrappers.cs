@@ -1,4 +1,4 @@
-﻿/*using System.Collections;
+﻿using System.Collections;
 using System;
 using MathNet.Numerics.LinearAlgebra;
 using ThermoFisher.CommonCore.Data;
@@ -12,7 +12,7 @@ using System.Collections.Concurrent;
 using System.Formats.Tar;
 using Range = ThermoFisher.CommonCore.Data.Business.Range;
 
-namespace i2i_learn
+namespace i2i_dotnet
 {
     internal class ThermoWrappers
     {
@@ -224,4 +224,3 @@ namespace i2i_learn
 
     }
 }
-*/
