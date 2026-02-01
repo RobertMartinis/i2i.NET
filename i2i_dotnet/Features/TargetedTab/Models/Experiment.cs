@@ -1,0 +1,24 @@
+﻿namespace i2i_dotnet.Features.TargetedTab.Models;
+
+public class Experiment
+{
+    private readonly List<LineScan> _lineScans = new();
+
+    public IReadOnlyList<LineScan> LineScans => _lineScans;
+
+    public int LineCount => _lineScans.Count;
+
+    public Experiment()
+    {
+    }
+
+    public void AddLineScan(LineScan lineScan)
+    {
+        _lineScans.Add(lineScan);
+    }
+
+    public void AddLineScans(IEnumerable<LineScan> lineScans)
+    {
+        _lineScans.AddRange(lineScans);
+    }
+}

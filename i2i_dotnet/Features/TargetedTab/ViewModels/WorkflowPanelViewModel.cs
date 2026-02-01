@@ -1,6 +1,7 @@
 ﻿using System.Windows.Input;
 using System.Windows.Media;
 using i2i_dotnet.Core;
+using i2i_dotnet.Features.TargetedTab.Models;
 using i2i_dotnet.Features.TargetedTab.Services;
 using i2i_dotnet.Shared.Stores;
 
@@ -167,15 +168,15 @@ public sealed class WorkflowPanelViewModel : ObservableObject
         
         UpdateOverallStatus("Loading experiment...", Brushes.Gold);
         // Update VM state
-        var spectra = await Task.Run(() =>
+        Experiment exp = await Task.Run(() =>
             _rawFiles.LoadRawFilesFromFolder(folder, progress)
         );
-        FileCount = spectra.Count;
+        FileCount = exp.LineCount;
         RawState = StepState.Done;
         UpdateOverallStatus("Experiment loaded", Brushes.LimeGreen);
 
         CanLoadAnalytes = true;
-        _experimentStore.MSExperiment = spectra;
+        _experimentStore.MSExperiment = exp;
         ((RelayCommand)LoadAnalyteListCommand).RaiseCanExecuteChanged();
     }
 

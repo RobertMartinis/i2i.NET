@@ -1,6 +1,6 @@
 ﻿namespace i2i_dotnet.Features.TargetedTab.Models;
 
-public class MSExperiment
+public class Spectrum
 {
     /// <summary>V
     /// The scan number of this MS Spectrum.
@@ -36,7 +36,7 @@ public class MSExperiment
     /// Constructor that sets the scannumber.
     /// </summary>
     /// <param name="scanNumber">This spectrums index.</param>
-    public MSExperiment(int scanNumber)
+    public Spectrum(int scanNumber)
     {
         ScanNumber = scanNumber;
         MZList = new List<double>();
@@ -51,7 +51,7 @@ public class MSExperiment
     /// <param name="mzlist">A list of all m/z in this spectrum.</param>
     /// <param name="intensities">A list of all intensities in this spectrum.</param>
     /// <param name="scanfilters">A list of all scanfilters in this spectrum.</param>
-    public MSExperiment(int scanNumber, IList<double> mzlist, IList<double> intensities, string scanfilter)
+    public Spectrum(int scanNumber, IList<double> mzlist, IList<double> intensities, string scanfilter)
         : this(scanNumber)
     {
         MZList.Capacity = mzlist.Count;

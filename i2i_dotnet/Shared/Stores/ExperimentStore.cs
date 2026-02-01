@@ -4,10 +4,10 @@ using i2i_dotnet.Features.TargetedTab.Models;
 namespace i2i_dotnet.Shared.Stores;
 public class ExperimentStore : ObservableObject
 {
-    private List<List<MSExperiment>>? _msExperiment;
+    private Experiment? _msExperiment;
     private IReadOnlyList<Analyte>?  _analytes;
 
-    public List<List<MSExperiment>> MSExperiment
+    public Experiment MSExperiment
     {
         get {return _msExperiment;}
         set => Set(ref _msExperiment, value);
