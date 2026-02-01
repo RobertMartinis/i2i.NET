@@ -25,7 +25,6 @@ namespace i2i_dotnet.Features.TargetedTab.Services
 
         var rawFile = RawFileReaderAdapter.FileFactory(filePath);
         rawFile.SelectInstrument(Device.MS, 1);
-
         for (int i = 1; i < rawFile.RunHeaderEx.SpectraCount; i++)
         {
 
