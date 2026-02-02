@@ -8,6 +8,10 @@
 		<Platforms>AnyCPU;x64</Platforms>
 	</PropertyGroup>
 
+  <PropertyGroup>
+    <PlatformTarget>x64</PlatformTarget>
+  </PropertyGroup>
+  
 	<PropertyGroup>
 		<LangVersion>10.0</LangVersion>
 	</PropertyGroup>
@@ -37,12 +41,6 @@
     <Reference Include="ThermoFisher.CommonCore.RawFileReader">
       <HintPath>Lib\ThermoFisher.CommonCore.RawFileReader.dll</HintPath>
     </Reference>
-    <Reference Include="ThermoRawFileReader">
-      <HintPath>Lib\ThermoRawFileReader.dll</HintPath>
-    </Reference>
-	  <Reference Include="PRISM">
-		  <HintPath>Lib\PRISM.dll</HintPath>
-	  </Reference>
   </ItemGroup>
   
   <ItemGroup>

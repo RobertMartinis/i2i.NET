@@ -4,22 +4,22 @@ using i2i_dotnet.Features.TargetedTab.Models;
 namespace i2i_dotnet.Shared.Stores;
 public class ExperimentStore : ObservableObject
 {
-    private Experiment? _msExperiment;
+    private Experiment? _msExperiment = new Experiment();
     private IReadOnlyList<Analyte>?  _analytes;
 
-    public Experiment MSExperiment
+    public Experiment? MSExperiment
     {
         get {return _msExperiment;}
         set => Set(ref _msExperiment, value);
     }
     
-    public IReadOnlyList<Analyte> Analytes
+    public IReadOnlyList<Analyte>? Analytes
     {
         get { return _analytes; }
         set => Set(ref _analytes, value);
     }
     public bool HasExperiment => MSExperiment != null;
-    public bool HasAnalytes => Analytes != null && Analytes.Count > 0;
+    public bool HasAnalytes => Analytes is { Count: > 0 };
 
     public void ClearAll()
     {
