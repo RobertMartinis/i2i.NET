@@ -30,12 +30,12 @@ namespace i2i_dotnet.Features.TargetedTab.Services
 
             var scanStatistics = rawFile.GetScanStatsForScanNumber(i);
             string scanFilter = rawFile.GetFilterForScanNumber(i).ToString();
+            double retentionTime = rawFile.RetentionTimeFromScanNumber(i);
             
             if (scanStatistics.IsCentroidScan && scanStatistics.SpectrumPacketType == SpectrumPacketType.FtCentroid)
             {
                 var centroidStream = rawFile.GetCentroidStream(i, false);
-
-                Spectrum spectra = new Spectrum(i, centroidStream.Masses, centroidStream.Intensities, scanFilter);
+                Spectrum spectra = new Spectrum(i, centroidStream.Masses, centroidStream.Intensities, scanFilter, retentionTime);
 
                 rawFileSpectrums.AddSpectra(spectra);
             }
@@ -43,8 +43,7 @@ namespace i2i_dotnet.Features.TargetedTab.Services
             else
             {
                 var segmentedScan = rawFile.GetSegmentedScanFromScanNumber(i, scanStatistics);
-
-                Spectrum spectra = new Spectrum(i, segmentedScan.Positions, segmentedScan.Intensities, scanFilter);
+                Spectrum spectra = new Spectrum(i, segmentedScan.Positions, segmentedScan.Intensities, scanFilter, retentionTime);
 
                 rawFileSpectrums.AddSpectra(spectra);
             }

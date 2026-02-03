@@ -31,6 +31,11 @@ public class Spectrum
     /// This Spectrums total ion count.
     /// </summary>
     public readonly double TotalIonCount;
+
+    /// <summary>
+    /// The retention time of this spectrum.
+    /// </summary>
+    public readonly double RetentionTime;
     
     /// <summary>
     /// Constructor that sets the scannumber.
@@ -51,12 +56,15 @@ public class Spectrum
     /// <param name="mzlist">A list of all m/z in this spectrum.</param>
     /// <param name="intensities">A list of all intensities in this spectrum.</param>
     /// <param name="scanfilters">A list of all scanfilters in this spectrum.</param>
-    public Spectrum(int scanNumber, IList<double> mzlist, IList<double> intensities, string scanfilter)
+    public Spectrum(int scanNumber, IList<double> mzlist, IList<double> intensities, string scanfilter, double
+        retentionTime)
         : this(scanNumber)
     {
         MZList.Capacity = mzlist.Count;
         Intensities.Capacity = intensities.Count;
         ScanFilter = scanfilter;
+        TotalIonCount = intensities.Sum();
+        RetentionTime = retentionTime;
 
         for (int i = 0; i < mzlist.Count; i++)
         {
