@@ -10,6 +10,6 @@ public interface IExperimentStore : INotifyPropertyChanged
     
     bool HasExperiment { get; }
     bool HasAnalytes { get; }
-    double[,]? AnalyteMatrix {get; set;}
+    List<double[,]> AnalyteMatrix {get; set;}
    
 }

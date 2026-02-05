@@ -21,4 +21,15 @@ public class Experiment
     {
         _lineScans.AddRange(lineScans);
     }
+
+    public IReadOnlyList<LineScan> GetLineScans()
+    {
+        return _lineScans;
+    }
+
+    public LineScan GetLineScan(int index)
+    {
+        return _lineScans[index];
+    }
+     
 }

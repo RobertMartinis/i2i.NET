@@ -1,13 +1,14 @@
-﻿using i2i_dotnet.Core;
+﻿using System.ComponentModel;
+using i2i_dotnet.Core;
 using i2i_dotnet.Features.TargetedTab.Models;
 
 namespace i2i_dotnet.Shared.Stores;
-public class ExperimentStore : ObservableObject, IExperimentStore
+public class ExperimentStore : ObservableObject, IExperimentStore, INotifyPropertyChanged
 {
     private Experiment? _msExperiment = new();
     private IReadOnlyList<Analyte>?  _analytes;
     // TODO: Add model for an Analyte Matrix
-    private double[,]? _analyteMatrix;
+    private List<double[,]> _analyteMatrix;
 
     public Experiment? MSExperiment
     {
@@ -24,7 +25,7 @@ public class ExperimentStore : ObservableObject, IExperimentStore
     public bool HasAnalytes => Analytes is { Count: > 0 };
 
     //TODO: Fix type specification for an Analyte Matrix
-    public double[,] AnalyteMatrix
+    public List<double[,]> AnalyteMatrix
     {
         get => _analyteMatrix;
         set => Set(ref _analyteMatrix, value);
@@ -35,4 +36,6 @@ public class ExperimentStore : ObservableObject, IExperimentStore
         MSExperiment = null;
         Analytes = null;
     } 
+    
+    
 }

@@ -42,8 +42,11 @@ namespace i2i_dotnet.Features.TargetedTab.Services
 
             else
             {
-                var segmentedScan = rawFile.GetSegmentedScanFromScanNumber(i, scanStatistics);
-                Spectrum spectra = new Spectrum(i, segmentedScan.Positions, segmentedScan.Intensities, scanFilter, retentionTime);
+                var segmentedScan = rawFile.GetCentroidStream(i, false);
+                var centroids = segmentedScan.GetCentroids();
+                var mzList = centroids.Select(c => c.Mass).ToArray();
+                var intensityList = centroids.Select(c => c.Intensity).ToArray();
+                Spectrum spectra = new Spectrum(i, mzList, intensityList, scanFilter, retentionTime);
 
                 rawFileSpectrums.AddSpectra(spectra);
             }

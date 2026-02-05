@@ -1,4 +1,5 @@
-﻿using System.Windows.Input;
+﻿using System.Collections.ObjectModel;
+using System.Windows.Input;
 using System.Windows.Media;
 using i2i_dotnet.Core;
 using i2i_dotnet.Features.TargetedTab.Models;
@@ -20,6 +21,9 @@ public sealed class WorkflowPanelViewModel : ObservableObject
     private readonly IRawFileService _rawFiles;
     private readonly IFolderDialogService _folderDialog;
     private readonly IAnalyteFileService _analyteFileService;
+    private readonly IFindPeaksService _findPeaksService;
+    public ObservableCollection<string> AnalyteList { get; set; } = new ObservableCollection<string>();
+    
     private ExperimentStore _experimentStore;
     public ICommand LoadRawCommand { get; }
     public ICommand LoadAnalyteListCommand { get; }
@@ -34,6 +38,7 @@ public sealed class WorkflowPanelViewModel : ObservableObject
     private StepState _rawState = StepState.Idle;
     private StepState _analyteState = StepState.Idle;
     private StepState _peaksState = StepState.Idle;
+    private double ppm = 5;
 
     private bool _canLoadAnalytes = false;
     private bool _canFindPeaks = false;
@@ -134,12 +139,14 @@ public sealed class WorkflowPanelViewModel : ObservableObject
     public WorkflowPanelViewModel(IRawFileService rawfiles,
         IFolderDialogService folderDialog, 
         IAnalyteFileService analyteFileService,
+        IFindPeaksService findPeaksService,
         ExperimentStore experimentStore)
     {
         // NOTE: later you’ll call Services here instead of fake values.
         _rawFiles = rawfiles;
         _folderDialog = folderDialog;
         _analyteFileService = analyteFileService;
+        _findPeaksService = findPeaksService;
         _experimentStore = experimentStore;
         LoadRawCommand = new RelayCommand(async () => await LoadRawAsync());
 
@@ -189,6 +196,10 @@ public sealed class WorkflowPanelViewModel : ObservableObject
         if (string.IsNullOrEmpty(documentPath))
             return;
         var analyteFile = _analyteFileService.LoadAnalytes(documentPath);
+        foreach (var analyte in analyteFile)
+        {
+            AnalyteList.Add(analyte.Mz.ToString());
+        }
 
         AnalyteState = StepState.Done;
         
@@ -204,7 +215,8 @@ public sealed class WorkflowPanelViewModel : ObservableObject
     {
         PeaksState = StepState.Working;
         UpdateOverallStatus("Finding peaks...", Brushes.Gold);
-
+        FindPeaksResult result = _findPeaksService.FindPeaks(ppm);
+        _experimentStore.AnalyteMatrix = result.AnalyteMatrix;
         // fake success
         PeaksState = StepState.Done;
         UpdateOverallStatus("Peaks found", Brushes.LimeGreen);

@@ -7,10 +7,6 @@ public class LineScan
     
     public int spectraCount => _spectra.Count;
     
-
-    public LineScan()
-    {
-    }
     
     public void AddSpectra(Spectrum spectra)
     {
@@ -20,5 +16,24 @@ public class LineScan
     public void AddSpectras(IEnumerable<Spectrum> spectras)
     {
         _spectra.AddRange(spectras);
+    }
+    
+    public List<Spectrum> GetSpectras()
+    {
+        return _spectra;
+    }
+
+    public Spectrum GetSpectra(int index)
+    {
+        return _spectra[index];
+    }
+    
+    public Dictionary<string, Spectrum[]> GetSpectrasByScanFilter(StringComparer? comparer = null)
+    {
+        comparer ??= StringComparer.Ordinal;
+
+        return _spectra
+            .GroupBy(s => s.ScanFilter ?? string.Empty, comparer)
+            .ToDictionary(g => g.Key, g => g.ToArray(), comparer);
     }
 }

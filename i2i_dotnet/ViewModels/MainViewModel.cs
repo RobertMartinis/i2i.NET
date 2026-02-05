@@ -13,16 +13,22 @@ namespace i2i_dotnet.ViewModels
       
         public MainViewModel()
         {
+            var experimentStore = new ExperimentStore();
+            
             var rawService = new ThermoRawFileService();
             var folderDialog = new MahAppsFolderDialogService();
             var analyteFileService = new AnalyteFileService();
-            var experimentStore = new ExperimentStore();
+            var findPeaksService = new FindPeaksService(experimentStore);
 
             TargetedTab = new TargetedTabViewModel(rawService,
                 folderDialog,
                 analyteFileService,
+                findPeaksService,
                 experimentStore);
+
         }
+        
+        
 
         public event PropertyChangedEventHandler? PropertyChanged;
 

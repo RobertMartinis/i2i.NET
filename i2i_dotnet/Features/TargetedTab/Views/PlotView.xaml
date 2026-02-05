@@ -1,13 +1,14 @@
-﻿<Page x:Class="i2i_dotnet.Features.TargetedTab.Views.PlotView"
-      xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
-      xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-      xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-      xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
-      xmlns:local="clr-namespace:i2i_dotnet.Features.TargetedTab.Views"
-      xmlns:scottplot="http://schemas.scottplot.net/2008/xaml/presentation"
-      mc:Ignorable="d"
-      Title="PlotView" Height="450" Width="800">
-    <Grid x:Name="PlotHost">
-        <ContentControl x:Name="Plotter" Content="{Binding PlotControl, Mode=OneTime}"/>
+﻿<UserControl x:Class="i2i_dotnet.Features.TargetedTab.Views.PlotView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+    <Grid Background="DarkSlateBlue">
+        <!-- Debug text so you KNOW it renders -->
+        <TextBlock Foreground="White"
+                   Text="{Binding SelectedAnalyte}"/>
+
+        <!-- Host the ScottPlot control -->
+        <ContentControl Content="{Binding PlotControl}"
+                        HorizontalContentAlignment="Stretch"
+                        VerticalContentAlignment="Stretch"/>
     </Grid>
-</Page>
+</UserControl>
