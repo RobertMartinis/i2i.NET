@@ -1,4 +1,5 @@
 ﻿using System.ComponentModel;
+using CommunityToolkit.Mvvm.ComponentModel;
 using i2i_dotnet.Shared.Stores;
 using ScottPlot;
 
@@ -6,23 +7,14 @@ namespace i2i_dotnet.Features.TargetedTab.ViewModels;
 
 using ScottPlot.WPF;
 
-public class PlotViewModel : INotifyPropertyChanged
+public sealed partial class PlotViewModel : ObservableObject
 {
     public WpfPlot PlotControl { get; } = new WpfPlot();
     private ExperimentStore _experimentstore;
     
-    private string? _selectedAnalyte;
-    public string? SelectedAnalyte
-    {
-        get => _selectedAnalyte;
-        set
-        {
-            if (_selectedAnalyte == value) return;
-            _selectedAnalyte = value;
-            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(SelectedAnalyte)));
-            PlotMz();
-        }
-    }
+    [ObservableProperty]
+    private string? selectedAnalyte;
+    
     // TODO: Add peak data instead of test data. Switch to heatmap.
     public PlotViewModel(ExperimentStore experimentStore)
     {
@@ -39,6 +31,9 @@ public class PlotViewModel : INotifyPropertyChanged
         plt.Add.Heatmap(values);
         plt.Legend.IsVisible = false;
         plt.HideAxesAndGrid();
+        plt.Axes.SetLimits();
+        plt.Axes.Margins(0,0);
+        
        
         plt.HideGrid(); 
 
@@ -60,10 +55,16 @@ public class PlotViewModel : INotifyPropertyChanged
         var plt = PlotControl.Plot;
         plt.Clear();
         plt.Add.Heatmap(values);
+        plt.
         PlotControl.Refresh();
     }
-    
-    public event PropertyChangedEventHandler? PropertyChanged;
+
+
+   partial void OnSelectedAnalyteChanged(string? value)
+{
+    System.Diagnostics.Debug.WriteLine($"SelectedAnalyte: {value}");
+    PlotMz();
+}
 
     
 }
