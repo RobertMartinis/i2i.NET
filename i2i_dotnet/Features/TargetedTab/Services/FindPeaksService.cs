@@ -59,7 +59,7 @@ public class FindPeaksService : IFindPeaksService
                 for (int a = 0; a < A; a++)
                 {
                     double target = masslist[a];
-                    int idx = FindClosestIndexLinear(mz, target);
+                    int idx = FindClosestIndexSorted(mz, target);
 
                     double foundMz = mz[idx];
                     double foundIt = it[idx];

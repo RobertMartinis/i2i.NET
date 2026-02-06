@@ -14,6 +14,8 @@ public sealed partial class PlotViewModel : ObservableObject
     
     [ObservableProperty]
     private string? selectedAnalyte;
+    [ObservableProperty]
+    private int selectedIndex;
     
     // TODO: Add peak data instead of test data. Switch to heatmap.
     public PlotViewModel(ExperimentStore experimentStore)
@@ -40,8 +42,9 @@ public sealed partial class PlotViewModel : ObservableObject
         PlotControl.Refresh();
     }
     
-    public void PlotMz()
+    public void PlotMz(double [,] analyteMatrix)
     {
+        /*
         int rows = 50;
         int cols = 80;
 
@@ -51,19 +54,22 @@ public sealed partial class PlotViewModel : ObservableObject
         for (int r = 0; r < rows; r++)
         for (int c = 0; c < cols; c++)
             values[r, c] = rng.NextDouble(); // 0..1
+            */
 
         var plt = PlotControl.Plot;
         plt.Clear();
-        plt.Add.Heatmap(values);
-        plt.
+        plt.Add.Heatmap(analyteMatrix);
         PlotControl.Refresh();
     }
 
 
-   partial void OnSelectedAnalyteChanged(string? value)
+   partial void OnSelectedIndexChanged(int value)
 {
     System.Diagnostics.Debug.WriteLine($"SelectedAnalyte: {value}");
-    PlotMz();
+    List<double[,]> analytem = _experimentstore.AnalyteMatrix;
+    
+    PlotMz(analytem[value]);
+    
 }
 
     
