@@ -1,10 +1,12 @@
 ﻿using System.Collections.ObjectModel;
 using System.Windows.Input;
 using System.Windows.Media;
-using i2i_dotnet.Core;
+using CommunityToolkit.Mvvm.ComponentModel;
+using CommunityToolkit.Mvvm.Input;
 using i2i_dotnet.Features.TargetedTab.Models;
 using i2i_dotnet.Features.TargetedTab.Services;
 using i2i_dotnet.Shared.Stores;
+using RelayCommand = i2i_dotnet.Core.RelayCommand;
 
 namespace i2i_dotnet.Features.TargetedTab.ViewModels;
 
@@ -16,86 +18,70 @@ public enum StepState
     Error
 }
 
-public sealed class WorkflowPanelViewModel : ObservableObject
+public sealed partial class WorkflowPanelViewModel : ObservableObject
 {
-    private readonly IRawFileService _rawFiles;
+    private readonly IFileReadService _fileService;
     private readonly IFolderDialogService _folderDialog;
     private readonly IAnalyteFileService _analyteFileService;
     private readonly IFindPeaksService _findPeaksService;
     public ObservableCollection<string> AnalyteList { get; set; } = new ObservableCollection<string>();
     
     private ExperimentStore _experimentStore;
-    public ICommand LoadRawCommand { get; }
+    public ICommand LoadFilesCommand { get; }
     public ICommand LoadAnalyteListCommand { get; }
     public ICommand FindPeaksCommand { get; }
     
+    [ObservableProperty]
     private int _fileCount = 0;
+    [ObservableProperty]
     private int _analyteCount = 0;
 
+    [ObservableProperty]
     private string _overallStatusText = "Ready";
+    [ObservableProperty]
     private Brush _overallStatusBrush = Brushes.LimeGreen;
 
+    [ObservableProperty]
     private StepState _rawState = StepState.Idle;
+    
+    [ObservableProperty]
     private StepState _analyteState = StepState.Idle;
+    [ObservableProperty]
     private StepState _peaksState = StepState.Idle;
-    private double ppm = 5;
+    
+    [ObservableProperty]
+    private double _ppm = 5;
 
+    [ObservableProperty]
     private bool _canLoadAnalytes = false;
+    [ObservableProperty]
     private bool _canFindPeaks = false;
 
     // Public bindable properties
-    public int FileCount
+
+    partial void OnRawStateChanged(StepState value)
     {
-        get => _fileCount;
-        set => Set(ref _fileCount, value);
+        OnStepStateChanged();
     }
 
-    public int AnalyteCount
+    partial void OnPeaksStateChanged(StepState value)
     {
-        get => _analyteCount;
-        set => Set(ref _analyteCount, value);
+        OnStepStateChanged();
     }
 
-    public string OverallStatusText
+    partial void OnAnalyteStateChanged(StepState value)
     {
-        get => _overallStatusText;
-        set => Set(ref _overallStatusText, value);
+        OnStepStateChanged();
     }
 
-    public Brush OverallStatusBrush
+    partial void OnCanLoadAnalytesChanged(bool value)
     {
-        get => _overallStatusBrush;
-        set => Set(ref _overallStatusBrush, value);
+        ((RelayCommand)LoadAnalyteListCommand).RaiseCanExecuteChanged();
     }
 
-    public StepState RawState
+    partial void OnCanFindPeaksChanged(bool value)
     {
-        get => _rawState;
-        private set
-        {
-            if (Set(ref _rawState, value))
-                OnStepStateChanged();
-        }
-    }
-
-    public StepState AnalyteState
-    {
-        get => _analyteState;
-        private set
-        {
-            if (Set(ref _analyteState, value))
-                OnStepStateChanged();
-        }
-    }
-
-    public StepState PeaksState
-    {
-        get => _peaksState;
-        private set
-        {
-            if (Set(ref _peaksState, value))
-                OnStepStateChanged();
-        }
+        ((RelayCommand)FindPeaksCommand).RaiseCanExecuteChanged();
     }
 
     // Brushes for your Ellipses
@@ -103,52 +89,26 @@ public sealed class WorkflowPanelViewModel : ObservableObject
     public Brush AnalyteStatusBrush => BrushFor(AnalyteState);
     public Brush PeaksStatusBrush => BrushFor(PeaksState);
 
-    public bool CanLoadAnalytes
-    {
-        get => _canLoadAnalytes;
-        private set
-        {
-            if (Set(ref _canLoadAnalytes, value))
-                ((RelayCommand)LoadAnalyteListCommand).RaiseCanExecuteChanged();
-        }
-    }
-
-    public bool CanFindPeaks
-    {
-        get => _canFindPeaks;
-        private set
-        {
-            if (Set(ref _canFindPeaks, value))
-                ((RelayCommand)FindPeaksCommand).RaiseCanExecuteChanged();
-        }
-    }
-    private double _progress;
-    public double Progress
-    {
-        get => _progress;
-        private set => Set(ref _progress, value);
-    }
-
-    private bool _isLoading;
-    public bool IsLoading
-    {
-        get => _isLoading;
-        private set => Set(ref _isLoading, value);
-    }
     
-    public WorkflowPanelViewModel(IRawFileService rawfiles,
+    [ObservableProperty]
+    private double _progress;
+
+    [ObservableProperty]
+    private bool _isLoading;
+    
+    public WorkflowPanelViewModel(IFileReadService fileService,
         IFolderDialogService folderDialog, 
         IAnalyteFileService analyteFileService,
         IFindPeaksService findPeaksService,
         ExperimentStore experimentStore)
     {
         // NOTE: later you’ll call Services here instead of fake values.
-        _rawFiles = rawfiles;
+        _fileService = fileService;
         _folderDialog = folderDialog;
         _analyteFileService = analyteFileService;
         _findPeaksService = findPeaksService;
         _experimentStore = experimentStore;
-        LoadRawCommand = new RelayCommand(async () => await LoadRawAsync());
+        LoadFilesCommand = new RelayCommand<ExperimentFileType>(async (value) => await LoadFilesAsync(value));
 
         LoadAnalyteListCommand = new RelayCommand(LoadAnalytes, () => CanLoadAnalytes);
         FindPeaksCommand = new RelayCommand(FindPeaks, () => CanFindPeaks);
@@ -160,11 +120,12 @@ public sealed class WorkflowPanelViewModel : ObservableObject
         UpdateOverallStatus("Ready", Brushes.LimeGreen);
     }
 
-    private async Task LoadRawAsync()
+    private async Task LoadFilesAsync(ExperimentFileType type)
     {
         RawState = StepState.Working;
 
         var folder = _folderDialog.PickFolder("Select folder");
+        
         if (string.IsNullOrEmpty(folder))
             return;
         
@@ -172,12 +133,21 @@ public sealed class WorkflowPanelViewModel : ObservableObject
         Progress = 0;
         
         var progress = new Progress<double>(p => Progress = p);
-        
+        Experiment exp = new Experiment(); 
         UpdateOverallStatus("Loading experiment...", Brushes.Gold);
         // Update VM state
-        Experiment exp = await Task.Run(() =>
-            _rawFiles.LoadRawFilesFromFolder(folder, progress)
-        );
+        if (type == ExperimentFileType.mzML)
+        {
+            exp = await Task.Run(() =>
+                _fileService.LoadMzmlFilesFromFolder(folder, progress));
+        }
+        else
+        {
+           exp = await Task.Run(() =>
+                _fileService.LoadRawFilesFromFolder(folder, progress)
+            );
+        }
+
         FileCount = exp.LineCount;
         RawState = StepState.Done;
         UpdateOverallStatus("Experiment loaded", Brushes.LimeGreen);
@@ -215,7 +185,7 @@ public sealed class WorkflowPanelViewModel : ObservableObject
     {
         PeaksState = StepState.Working;
         UpdateOverallStatus("Finding peaks...", Brushes.Gold);
-        FindPeaksResult result = _findPeaksService.FindPeaks(ppm);
+        FindPeaksResult result = _findPeaksService.FindPeaks(_ppm);
         _experimentStore.AnalyteMatrix = result.AnalyteMatrix;
         // fake success
         PeaksState = StepState.Done;

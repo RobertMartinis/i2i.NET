@@ -8,13 +8,13 @@ public class TargetedTabViewModel
     public WorkflowPanelViewModel WorkflowPanel { get; }
     public PlotViewModel PlotViewPanel { get; }
 
-    public TargetedTabViewModel(IRawFileService raw,
+    public TargetedTabViewModel(IFileReadService fileService,
         IFolderDialogService dialog,
         IAnalyteFileService analyteFileService,
         IFindPeaksService findPeaksService,
         ExperimentStore experimentStore)
     {
-        WorkflowPanel = new WorkflowPanelViewModel(raw, dialog, analyteFileService, findPeaksService, experimentStore);
+        WorkflowPanel = new WorkflowPanelViewModel(fileService, dialog, analyteFileService, findPeaksService, experimentStore);
         PlotViewPanel = new PlotViewModel(experimentStore);
     }
 }

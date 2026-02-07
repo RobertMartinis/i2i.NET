@@ -9,11 +9,18 @@ public class ExperimentStore : ObservableObject, IExperimentStore, INotifyProper
     private IReadOnlyList<Analyte>?  _analytes;
     // TODO: Add model for an Analyte Matrix
     private List<double[,]> _analyteMatrix;
+    private ExperimentFileType _experimentType;
 
     public Experiment? MSExperiment
     {
         get {return _msExperiment;}
         set => Set(ref _msExperiment, value);
+    }
+
+    public ExperimentFileType ExperimentType
+    {
+        get {return _experimentType;}
+        set => Set(ref _experimentType, value);
     }
     
     public IReadOnlyList<Analyte>? Analytes

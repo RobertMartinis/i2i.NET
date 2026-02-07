@@ -14,13 +14,15 @@ namespace i2i_dotnet.ViewModels
         public MainViewModel()
         {
             var experimentStore = new ExperimentStore();
+            var mzmlFileService = new MzMLFileService();
+            var rawFileService = new ThermoRawFileService();
             
-            var rawService = new ThermoRawFileService();
+            var fileReadService = new FileReadService(rawFileService, mzmlFileService);
             var folderDialog = new MahAppsFolderDialogService();
             var analyteFileService = new AnalyteFileService();
             var findPeaksService = new FindPeaksService(experimentStore);
 
-            TargetedTab = new TargetedTabViewModel(rawService,
+            TargetedTab = new TargetedTabViewModel(fileReadService,
                 folderDialog,
                 analyteFileService,
                 findPeaksService,

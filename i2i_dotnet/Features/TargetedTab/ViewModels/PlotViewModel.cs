@@ -1,21 +1,19 @@
 ﻿using System.ComponentModel;
 using CommunityToolkit.Mvvm.ComponentModel;
 using i2i_dotnet.Shared.Stores;
-using ScottPlot;
-
-namespace i2i_dotnet.Features.TargetedTab.ViewModels;
-
+using ThermoFisher.CommonCore.Data;
 using ScottPlot.WPF;
 
+namespace i2i_dotnet.Features.TargetedTab.ViewModels;
 public sealed partial class PlotViewModel : ObservableObject
 {
     public WpfPlot PlotControl { get; } = new WpfPlot();
     private ExperimentStore _experimentstore;
     
     [ObservableProperty]
-    private string? selectedAnalyte;
+    private string? _selectedAnalyte;
     [ObservableProperty]
-    private int selectedIndex;
+    private int _selectedIndex;
     
     // TODO: Add peak data instead of test data. Switch to heatmap.
     public PlotViewModel(ExperimentStore experimentStore)
@@ -65,10 +63,12 @@ public sealed partial class PlotViewModel : ObservableObject
 
    partial void OnSelectedIndexChanged(int value)
 {
-    System.Diagnostics.Debug.WriteLine($"SelectedAnalyte: {value}");
-    List<double[,]> analytem = _experimentstore.AnalyteMatrix;
+    if (_experimentstore.AnalyteMatrix.IsNullOrEmpty())
+    {
+        return;
+    }
     
-    PlotMz(analytem[value]);
+    PlotMz(_experimentstore.AnalyteMatrix[value]);
     
 }
 
