@@ -137,12 +137,12 @@ public sealed partial class WorkflowPanelViewModel : ObservableObject
         
         var progress = new Progress<double>(p => Progress = p);
         Experiment exp = new Experiment();
-        HashSet<string> uniqueFilters;
+        string[] uniqueFilters;
         UpdateOverallStatus("Loading experiment...", Brushes.Gold);
         // Update VM state
         if (type == ExperimentFileType.mzML)
         {
-            exp = await Task.Run(() =>
+            (exp, uniqueFilters) = await Task.Run(() =>
                 _fileService.LoadMzmlFilesFromFolder(folder, progress));
         }
         else
@@ -150,18 +150,11 @@ public sealed partial class WorkflowPanelViewModel : ObservableObject
             (exp, uniqueFilters) = await Task.Run(() =>
                 _fileService.LoadRawFilesFromFolder(folder, progress)
             );
-            if (uniqueFilters!= null)
-            {
-                foreach (var filter in uniqueFilters)
-                {
-                    ScanFilters.Add(filter);
-                }
-                
-            }
 
-            SelectedScanFilter = ScanFilters.FirstOrDefault();
         }
 
+        ScanFilters.AddRange(uniqueFilters);
+        SelectedScanFilter = ScanFilters.FirstOrDefault();
         FileCount = exp.LineCount;
         RawState = StepState.Done;
         UpdateOverallStatus("Experiment loaded", Brushes.LimeGreen);
@@ -195,7 +188,7 @@ public sealed partial class WorkflowPanelViewModel : ObservableObject
     {
         PeaksState = StepState.Working;
         UpdateOverallStatus("Finding peaks...", Brushes.Gold);
-        FindPeaksResult result = _findPeaksService.FindPeaks(_ppm);
+        FindPeaksResult result = _findPeaksService.FindPeaks(Ppm, SelectedScanFilter);
         _experimentStore.AnalyteMatrix = result.AnalyteMatrix;
         // fake success
         PeaksState = StepState.Done;

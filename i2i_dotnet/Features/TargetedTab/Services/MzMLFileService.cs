@@ -10,6 +10,7 @@ namespace i2i_dotnet.Features.TargetedTab.Services;
 
 public class MzMLFileService : ImzMLFileService
 {
+    private HashSet<string> _scanFilters = new();
     public LineScan LoadFileToMsSpectra(string filePath)
     {
         var doc = XDocument.Load(filePath);
@@ -52,6 +53,8 @@ public class MzMLFileService : ImzMLFileService
             double rt = ReadCvDouble(scanCv, "scan start time") ?? 0.0;
 
             string scanFilter = ReadCvString(scanCv, "filter string") ?? "";
+            
+            _scanFilters.Add(scanFilter);
 
             // Adapt to your Spectrum constructor
             var spectrum = new Spectrum(
@@ -97,7 +100,7 @@ public class MzMLFileService : ImzMLFileService
         return doubles;
     }
 
-    public Experiment LoadMzmlFilesFromFolder(string folderPath, IProgress<double>? progress = null)
+    public (Experiment, string[]) LoadMzmlFilesFromFolder(string folderPath, IProgress<double>? progress = null)
     {
         Experiment exp = new Experiment();
         var mzmlfiles = Directory.GetFiles(folderPath, "*.mzml");
@@ -116,6 +119,6 @@ public class MzMLFileService : ImzMLFileService
             }
         }
 
-        return exp;
+        return (exp, _scanFilters.ToArray());
     }
 }

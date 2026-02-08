@@ -69,7 +69,7 @@ namespace i2i_dotnet.Features.TargetedTab.Services
     /// <param name="folderPath">Path to the folder containing .raw files.</param>
     /// <param name="progress"></param>
     /// <returns>A experiment object, containing LineScans representing the rows in the experiment.</returns>
-    public (Experiment, HashSet<string>) LoadRawFilesFromFolder(string folderPath, IProgress<double> progress)
+    public (Experiment, string[]) LoadRawFilesFromFolder(string folderPath, IProgress<double> progress)
     {
         Experiment exp = new Experiment();
 
@@ -90,7 +90,7 @@ namespace i2i_dotnet.Features.TargetedTab.Services
             }
         }
 
-        return (exp, _scanFilters);
+        return (exp, _scanFilters.ToArray());
     }
 
 

@@ -16,7 +16,7 @@ public class FindPeaksService : IFindPeaksService
     }
 
 
-    public FindPeaksResult FindPeaks(double treshold)
+    public FindPeaksResult FindPeaks(double treshold, string scanFilter)
     {
         var linescans = _store.MSExperiment.GetLineScans().ToList();
         var analytelist = _store.Analytes.ToList();
@@ -35,8 +35,7 @@ public class FindPeaksService : IFindPeaksService
                 continue;
 
 
-            var firstKey = byFilter.Keys.OrderBy(k => k, StringComparer.Ordinal).First();
-            var spectras = byFilter[firstKey]; // Spectrum[]
+            var spectras = byFilter[scanFilter]; // Spectrum[]
             int S = spectras.Length;
             int A = masslist.Length;                    // analytes
 
