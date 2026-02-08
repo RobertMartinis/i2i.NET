@@ -6,6 +6,7 @@ using CommunityToolkit.Mvvm.Input;
 using i2i_dotnet.Features.TargetedTab.Models;
 using i2i_dotnet.Features.TargetedTab.Services;
 using i2i_dotnet.Shared.Stores;
+using ThermoFisher.CommonCore.Data;
 using RelayCommand = i2i_dotnet.Core.RelayCommand;
 
 namespace i2i_dotnet.Features.TargetedTab.ViewModels;
@@ -102,7 +103,6 @@ public sealed partial class WorkflowPanelViewModel : ObservableObject
         IFindPeaksService findPeaksService,
         ExperimentStore experimentStore)
     {
-        // NOTE: later you’ll call Services here instead of fake values.
         _fileService = fileService;
         _folderDialog = folderDialog;
         _analyteFileService = analyteFileService;
@@ -159,6 +159,7 @@ public sealed partial class WorkflowPanelViewModel : ObservableObject
 
     private void LoadAnalytes()
     {
+        AnalyteList.Clear();
         AnalyteState = StepState.Working;
         UpdateOverallStatus("Loading analyte list...", Brushes.Gold);
         
@@ -166,11 +167,6 @@ public sealed partial class WorkflowPanelViewModel : ObservableObject
         if (string.IsNullOrEmpty(documentPath))
             return;
         var analyteFile = _analyteFileService.LoadAnalytes(documentPath);
-        foreach (var analyte in analyteFile)
-        {
-            AnalyteList.Add(analyte.Mz.ToString());
-        }
-
         AnalyteState = StepState.Done;
         
         AnalyteCount = analyteFile.Count;
@@ -190,6 +186,15 @@ public sealed partial class WorkflowPanelViewModel : ObservableObject
         // fake success
         PeaksState = StepState.Done;
         UpdateOverallStatus("Peaks found", Brushes.LimeGreen);
+        
+        var analyteList = _experimentStore.Analytes;
+        if (analyteList == null || analyteList.Count == 0)
+            return;
+
+        AnalyteList.Clear();
+        foreach (var analyte in analyteList)
+            AnalyteList.Add(analyte.Mz.ToString());
+
     }
 
     private void OnStepStateChanged()

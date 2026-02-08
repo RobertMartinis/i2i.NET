@@ -1,76 +1,86 @@
 ﻿using System.ComponentModel;
 using CommunityToolkit.Mvvm.ComponentModel;
 using i2i_dotnet.Shared.Stores;
-using ThermoFisher.CommonCore.Data;
 using ScottPlot.WPF;
 
 namespace i2i_dotnet.Features.TargetedTab.ViewModels;
-public sealed partial class PlotViewModel : ObservableObject
+
+public sealed partial class PlotViewModel : ObservableObject, IDisposable
 {
-    public WpfPlot PlotControl { get; } = new WpfPlot();
-    private ExperimentStore _experimentstore;
-    
-    [ObservableProperty]
-    private string? _selectedAnalyte;
+    public WpfPlot PlotControl { get; } = new();
+
+    private readonly ExperimentStore _experimentStore;
+
     [ObservableProperty]
     private int _selectedIndex;
-    
-    // TODO: Add peak data instead of test data. Switch to heatmap.
+
     public PlotViewModel(ExperimentStore experimentStore)
     {
-        _experimentstore = experimentStore;
-        double[,] values =
-        {
-            { 1,  2,  3,  4,  5 },
-            { 6,  7,  8,  9, 10 },
-            { 11, 12, 13, 14, 15 },
-        };
+        _experimentStore = experimentStore;
 
-        var plt = PlotControl.Plot;
+        _experimentStore.PropertyChanged += ExperimentStoreOnPropertyChanged;
 
-        plt.Add.Heatmap(values);
-        plt.Legend.IsVisible = false;
-        plt.HideAxesAndGrid();
-        plt.Axes.SetLimits();
-        plt.Axes.Margins(0,0);
-        
-       
-        plt.HideGrid(); 
-
-        PlotControl.Refresh();
+        ReplotFromStore();
     }
-    
-    public void PlotMz(double [,] analyteMatrix)
+
+    private void ExperimentStoreOnPropertyChanged(object? sender, PropertyChangedEventArgs e)
     {
-        /*
-        int rows = 50;
-        int cols = 80;
+        if (e.PropertyName == nameof(ExperimentStore.AnalyteMatrix))
+        {
+            // If FindPeaks sets AnalyteMatrix, we replot.
+            ReplotFromStore();
+        }
+    }
 
-        var rng = new Random();
+    private void ReplotFromStore()
+    {
+        var matrices = _experimentStore.AnalyteMatrix;
+        if (matrices == null || matrices.Count == 0)
+            return;
 
-        double[,] values = new double[rows, cols];
-        for (int r = 0; r < rows; r++)
-        for (int c = 0; c < cols; c++)
-            values[r, c] = rng.NextDouble(); // 0..1
-            */
+        var idx = Math.Clamp(SelectedIndex, 0, matrices.Count - 1);
+        if (idx != SelectedIndex)
+            SelectedIndex = idx;
 
+        // Ensure plotting happens on the UI thread (ScottPlot/WPF control)
+        if (PlotControl.Dispatcher.CheckAccess())
+        {
+            PlotMz(matrices[idx]);
+        }
+        else
+        {
+            PlotControl.Dispatcher.Invoke(() => PlotMz(matrices[idx]));
+        }
+    }
+
+    public void PlotMz(double[,] analyteMatrix)
+    {
         var plt = PlotControl.Plot;
         plt.Clear();
         plt.Add.Heatmap(analyteMatrix);
+        plt.Legend.IsVisible = false;
+        plt.HideAxesAndGrid();
+        plt.Axes.Margins(0, 0);
         PlotControl.Refresh();
     }
 
-
-   partial void OnSelectedIndexChanged(int value)
-{
-    if (_experimentstore.AnalyteMatrix.IsNullOrEmpty())
+    partial void OnSelectedIndexChanged(int value)
     {
-        return;
-    }
-    
-    PlotMz(_experimentstore.AnalyteMatrix[value]);
-    
-}
+        var matrices = _experimentStore.AnalyteMatrix;
+        if (matrices == null || matrices.Count == 0)
+            return;
 
-    
+        if (value < 0 || value >= matrices.Count)
+            return;
+
+        if (PlotControl.Dispatcher.CheckAccess())
+            PlotMz(matrices[value]);
+        else
+            PlotControl.Dispatcher.Invoke(() => PlotMz(matrices[value]));
+    }
+
+    public void Dispose()
+    {
+        _experimentStore.PropertyChanged -= ExperimentStoreOnPropertyChanged;
+    }
 }

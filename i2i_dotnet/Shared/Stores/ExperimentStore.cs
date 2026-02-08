@@ -1,48 +1,21 @@
-﻿using System.ComponentModel;
-using i2i_dotnet.Core;
+﻿using CommunityToolkit.Mvvm.ComponentModel;
 using i2i_dotnet.Features.TargetedTab.Models;
 
 namespace i2i_dotnet.Shared.Stores;
-public class ExperimentStore : ObservableObject, IExperimentStore, INotifyPropertyChanged
+
+public partial class ExperimentStore : ObservableObject, IExperimentStore
 {
-    private Experiment? _msExperiment = new();
-    private IReadOnlyList<Analyte>?  _analytes;
-    // TODO: Add model for an Analyte Matrix
-    private List<double[,]> _analyteMatrix;
-    private ExperimentFileType _experimentType;
+    [ObservableProperty]
+    [NotifyPropertyChangedFor(nameof(HasExperiment))]
+    private Experiment? _mSExperiment = new();
 
-    public Experiment? MSExperiment
-    {
-        get {return _msExperiment;}
-        set => Set(ref _msExperiment, value);
-    }
+    [ObservableProperty]
+    [NotifyPropertyChangedFor(nameof(HasAnalytes))]
+    private IReadOnlyList<Analyte>? _analytes;
 
-    public ExperimentFileType ExperimentType
-    {
-        get {return _experimentType;}
-        set => Set(ref _experimentType, value);
-    }
-    
-    public IReadOnlyList<Analyte>? Analytes
-    {
-        get { return _analytes; }
-        set => Set(ref _analytes, value);
-    }
+    [ObservableProperty]
+    private List<double[,]> _analyteMatrix = new();
+
     public bool HasExperiment => MSExperiment != null;
     public bool HasAnalytes => Analytes is { Count: > 0 };
-
-    //TODO: Fix type specification for an Analyte Matrix
-    public List<double[,]> AnalyteMatrix
-    {
-        get => _analyteMatrix;
-        set => Set(ref _analyteMatrix, value);
-    }
-    
-    public void ClearAll()
-    {
-        MSExperiment = null;
-        Analytes = null;
-    } 
-    
-    
 }
