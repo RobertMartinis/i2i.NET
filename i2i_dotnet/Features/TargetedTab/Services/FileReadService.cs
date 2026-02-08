@@ -12,7 +12,7 @@ public class FileReadService : IFileReadService
         _mzml = mzml;
     } 
     
-    public Experiment LoadRawFilesFromFolder(string folder, IProgress<double>? progress = null)
+    public (Experiment, HashSet<string>) LoadRawFilesFromFolder(string folder, IProgress<double>? progress = null)
         => _raw.LoadRawFilesFromFolder(folder, progress);
 
     public Experiment LoadMzmlFilesFromFolder(string folder, IProgress<double>? progress = null)

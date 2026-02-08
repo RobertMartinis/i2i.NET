@@ -58,6 +58,9 @@ public sealed partial class WorkflowPanelViewModel : ObservableObject
     [ObservableProperty]
     private bool _canFindPeaks = false;
 
+    [ObservableProperty] private List<string> _scanFilters = new();
+    [ObservableProperty] private string _selectedScanFilter;
+
     // Public bindable properties
 
     partial void OnRawStateChanged(StepState value)
@@ -133,7 +136,8 @@ public sealed partial class WorkflowPanelViewModel : ObservableObject
         Progress = 0;
         
         var progress = new Progress<double>(p => Progress = p);
-        Experiment exp = new Experiment(); 
+        Experiment exp = new Experiment();
+        HashSet<string> uniqueFilters;
         UpdateOverallStatus("Loading experiment...", Brushes.Gold);
         // Update VM state
         if (type == ExperimentFileType.mzML)
@@ -143,9 +147,19 @@ public sealed partial class WorkflowPanelViewModel : ObservableObject
         }
         else
         {
-           exp = await Task.Run(() =>
+            (exp, uniqueFilters) = await Task.Run(() =>
                 _fileService.LoadRawFilesFromFolder(folder, progress)
             );
+            if (uniqueFilters!= null)
+            {
+                foreach (var filter in uniqueFilters)
+                {
+                    ScanFilters.Add(filter);
+                }
+                
+            }
+
+            SelectedScanFilter = ScanFilters.FirstOrDefault();
         }
 
         FileCount = exp.LineCount;

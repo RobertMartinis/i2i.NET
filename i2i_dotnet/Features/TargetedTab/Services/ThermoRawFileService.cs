@@ -14,6 +14,8 @@ namespace i2i_dotnet.Features.TargetedTab.Services
     public class ThermoRawFileService : IRawFileService
 
     {
+        private readonly HashSet<string> _scanFilters = new();
+        
     /// <summary>
     /// Reads a Thermo raw file, and converts the contents to a MSSpectrum data type. 
     /// </summary>
@@ -31,6 +33,11 @@ namespace i2i_dotnet.Features.TargetedTab.Services
             var scanStatistics = rawFile.GetScanStatsForScanNumber(i);
             string scanFilter = rawFile.GetFilterForScanNumber(i).ToString();
             double retentionTime = rawFile.RetentionTimeFromScanNumber(i);
+
+            if (!_scanFilters.Contains(scanFilter))
+            {
+               _scanFilters.Add(scanFilter); 
+            }
             
             if (scanStatistics.IsCentroidScan && scanStatistics.SpectrumPacketType == SpectrumPacketType.FtCentroid)
             {
@@ -52,7 +59,7 @@ namespace i2i_dotnet.Features.TargetedTab.Services
             }
 
         }
-        
+
         return rawFileSpectrums;
     }
 
@@ -60,8 +67,9 @@ namespace i2i_dotnet.Features.TargetedTab.Services
     /// Function to load .raw files from a folder. 
     /// </summary>
     /// <param name="folderPath">Path to the folder containing .raw files.</param>
+    /// <param name="progress"></param>
     /// <returns>A experiment object, containing LineScans representing the rows in the experiment.</returns>
-    public Experiment LoadRawFilesFromFolder(string folderPath, IProgress<double>? progress = null)
+    public (Experiment, HashSet<string>) LoadRawFilesFromFolder(string folderPath, IProgress<double> progress)
     {
         Experiment exp = new Experiment();
 
@@ -72,7 +80,7 @@ namespace i2i_dotnet.Features.TargetedTab.Services
             try
             {
                 var rawFile = rawDirectories[i];
-                LineScan spectrumFromFile = LoadFileToMsSpectra(rawFile);
+                var spectrumFromFile = LoadFileToMsSpectra(rawFile);
                 exp.AddLineScan(spectrumFromFile);
                 progress?.Report((i + 1) * 100.0 / rawDirectories.Length);
             }
@@ -82,7 +90,7 @@ namespace i2i_dotnet.Features.TargetedTab.Services
             }
         }
 
-        return exp;
+        return (exp, _scanFilters);
     }
 
 

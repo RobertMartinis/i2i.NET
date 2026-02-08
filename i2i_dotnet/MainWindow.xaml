@@ -65,7 +65,9 @@
                 <StackPanel Orientation="Vertical" VerticalAlignment="Center">
                     <StackPanel Orientation="Horizontal">
                         <TextBlock Text ="Scan Filter" Foreground="White"></TextBlock>
-                        <ComboBox HorizontalAlignment="Right" Width="250" Margin="28 0 0 0"></ComboBox>
+                        <ComboBox HorizontalAlignment="Right" Width="250" Margin="28 0 0 0"
+                                  ItemsSource="{Binding TargetedTab.WorkflowPanel.ScanFilters, Mode=TwoWay}"
+                                  SelectedItem="{Binding TargetedTab.WorkflowPanel.SelectedScanFilter}"></ComboBox>
                     </StackPanel>
                 </StackPanel>
                 <!-- Analyte Name -->
