@@ -1,11 +1,9 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Globalization;
+﻿using System.Globalization;
 using System.IO;
-using System.Linq;
 using System.Xml.Linq;
 using i2i_dotnet.Features.TargetedTab.Models;
-
+using System.Linq;
+using System.Threading.Tasks;
 namespace i2i_dotnet.Features.TargetedTab.Services;
 
 public class MzMLFileService : ImzMLFileService
@@ -104,21 +102,26 @@ public class MzMLFileService : ImzMLFileService
     {
         Experiment exp = new Experiment();
         var mzmlfiles = Directory.GetFiles(folderPath, "*.mzml");
-        for(int i = 0; i <mzmlfiles.Length; i++)
+        int numFiles = mzmlfiles.Length;
+        int done = 0;
+        LineScan[] linescans = new LineScan[numFiles];
+        Parallel.For(0, numFiles, i =>
         {
             try
             {
                 LineScan spectrumFromFile = LoadFileToMsSpectra(mzmlfiles[i]);
-                exp.AddLineScan(spectrumFromFile);
-                progress?.Report((i + 1) * 100.0 / mzmlfiles.Length);
+                linescans[i] = spectrumFromFile;
+                int step = Interlocked.Increment(ref done);
+                progress?.Report((step) * 100.0 / mzmlfiles.Length);
             }
 
             catch (Exception e)
             {
                 System.Diagnostics.Debug.WriteLine(e);
             }
-        }
+        });
 
+        exp.AddLineScans(linescans);
         return (exp, _scanFilters.ToArray());
     }
 }

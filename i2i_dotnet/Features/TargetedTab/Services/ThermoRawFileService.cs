@@ -14,6 +14,7 @@ namespace i2i_dotnet.Features.TargetedTab.Services
     public class ThermoRawFileService : IRawFileService
 
     {
+        private readonly object _scanFilterLock = new();
         private readonly HashSet<string> _scanFilters = new();
         
     /// <summary>
@@ -34,9 +35,9 @@ namespace i2i_dotnet.Features.TargetedTab.Services
             string scanFilter = rawFile.GetFilterForScanNumber(i).ToString();
             double retentionTime = rawFile.RetentionTimeFromScanNumber(i);
 
-            if (!_scanFilters.Contains(scanFilter))
+            lock (_scanFilterLock)
             {
-               _scanFilters.Add(scanFilter); 
+                _scanFilters.Add(scanFilter); 
             }
             
             if (scanStatistics.IsCentroidScan && scanStatistics.SpectrumPacketType == SpectrumPacketType.FtCentroid)
@@ -74,22 +75,25 @@ namespace i2i_dotnet.Features.TargetedTab.Services
         Experiment exp = new Experiment();
 
         var rawDirectories = Directory.GetFiles(folderPath, "*.raw");
-
-        for (int i = 0; i < rawDirectories.Length; i++)
+        var numFiles = rawDirectories.Length;
+        LineScan[] lineScans = new LineScan[numFiles];
+        int done = 0;
+        Parallel.For(0, numFiles, i =>
         {
             try
             {
                 var rawFile = rawDirectories[i];
                 var spectrumFromFile = LoadFileToMsSpectra(rawFile);
-                exp.AddLineScan(spectrumFromFile);
-                progress?.Report((i + 1) * 100.0 / rawDirectories.Length);
+                lineScans[i] = spectrumFromFile;
+                int step = Interlocked.Increment(ref done);
+                progress?.Report((step + 1) * 100.0 / rawDirectories.Length);
             }
             catch (Exception ex)
             {
                 System.Diagnostics.Debug.WriteLine($"Failed to load {rawDirectories[i]}: {ex.Message}");
             }
-        }
-
+        });
+        exp.AddLineScans(lineScans);
         return (exp, _scanFilters.ToArray());
     }
 

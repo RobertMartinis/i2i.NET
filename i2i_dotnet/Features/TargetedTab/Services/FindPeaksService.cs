@@ -52,7 +52,7 @@ public class FindPeaksService : IFindPeaksService
                 double[] it = spectra.Intensities.ToArray();
 
                 if (mz == null || it == null || mz.Length != it.Length || mz.Length == 0)
-                    throw new InvalidOperationException("M/z and Intensity arrays do not match in size.");
+                    continue;
 
            
                 for (int a = 0; a < A; a++)
