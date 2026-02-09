@@ -85,7 +85,7 @@
                     <Button Content="&lt;" Width="50" Margin="5,0"/>
 
                     <!-- Value Display -->
-                    <TextBox Text="0.0000" Foreground="White"
+                    <TextBox Text="{Binding TargetedTab.PlotViewPanel.SelectedAnalyte}" Foreground="White"
                  Width="80"
                  Height="24"
                  Margin="5,0"

@@ -14,6 +14,8 @@ public sealed partial class PlotViewModel : ObservableObject, IDisposable
     [ObservableProperty]
     private int _selectedIndex;
 
+    [ObservableProperty] private string _selectedAnalyte;
+
     public PlotViewModel(ExperimentStore experimentStore)
     {
         _experimentStore = experimentStore;

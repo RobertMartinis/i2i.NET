@@ -8,6 +8,7 @@ namespace i2i_dotnet.Features.TargetedTab.Services;
 
 public class MzMLFileService : ImzMLFileService
 {
+    private object _scanFiltersLock = new object();
     private HashSet<string> _scanFilters = new();
     public LineScan LoadFileToMsSpectra(string filePath)
     {
@@ -47,14 +48,15 @@ public class MzMLFileService : ImzMLFileService
             var scanEl = spec.Descendants(ns + "scan").FirstOrDefault();
             var scanCv = scanEl?.Elements(ns + "cvParam").ToList() ?? new List<XElement>();
 
-            // MATLAB used scan.cvParam(1).valueAttribute (not stable); here’s the common one:
             double rt = ReadCvDouble(scanCv, "scan start time") ?? 0.0;
 
             string scanFilter = ReadCvString(scanCv, "filter string") ?? "";
             
-            _scanFilters.Add(scanFilter);
+            lock (_scanFiltersLock) {
+                _scanFilters.Add(scanFilter);
+            }
 
-            // Adapt to your Spectrum constructor
+
             var spectrum = new Spectrum(
                 
                 mzlist: mz.ToList(),
