@@ -122,8 +122,49 @@ public class MzMLFileService : ImzMLFileService
                 System.Diagnostics.Debug.WriteLine(e);
             }
         });
+        int maxSize = linescans.Select(s => s.spectraCount).DefaultIfEmpty(0).Max();
+        double[,] retentionTimes = new double[numFiles, maxSize];
+        for (int i = 0; i < numFiles; i++)
+        {
+            var ls = linescans[i];
+            if (ls == null) continue;
 
+            // materialize retention times for this row
+            double[] rt = ls.GetSpectras().Select(sp => sp.RetentionTime).ToArray();
+
+            int len = Math.Min(rt.Length, maxSize);
+            for (int c = 0; c < len; c++)
+                retentionTimes[i, c] = rt[c];
+        }
         exp.AddLineScans(linescans);
+        TimeMatrix tm = CreateTimeMatrix(linescans);
         return (exp, _scanFilters.ToArray());
     }
+
+    private TimeMatrix CreateTimeMatrix(LineScan[] lineScans)
+    {
+        int maxSize = lineScans
+            .Where(ls => ls != null)
+            .Select(ls => ls.GetSpectras().Count()) 
+            .DefaultIfEmpty(0)
+            .Max();
+
+        var matrix = new TimeMatrix { Rows = new List<TimeRow>(lineScans.Length) };
+
+        foreach (var ls in lineScans)
+        {
+            var padded = new double[maxSize];
+
+            if (ls != null)
+            {
+                var rt = ls.GetSpectras().Select(sp => sp.RetentionTime).ToArray();
+                Array.Copy(rt, 0, padded, 0, Math.Min(rt.Length, maxSize));
+            }
+
+            matrix.Rows.Add(new TimeRow(padded));
+        }
+
+        return matrix;
+    }
+
 }
