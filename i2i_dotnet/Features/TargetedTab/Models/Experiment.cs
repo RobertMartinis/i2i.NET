@@ -5,6 +5,9 @@ public class Experiment
     private readonly List<LineScan> _lineScans = new();
 
     public IReadOnlyList<LineScan> LineScans => _lineScans;
+    
+    public TimeMatrix TimeMatrix { get; set; } = new ();
+
 
     public int LineCount => _lineScans.Count;
 

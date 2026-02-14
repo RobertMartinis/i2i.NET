@@ -18,6 +18,8 @@ public partial class ExperimentStore : ObservableObject, IExperimentStore
     
     [ObservableProperty]
     private List<string> _scanFilters = new();
+    
+    
 
     public bool HasExperiment => MSExperiment != null;
     public bool HasAnalytes => Analytes is { Count: > 0 };

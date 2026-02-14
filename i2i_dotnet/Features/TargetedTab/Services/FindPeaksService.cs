@@ -1,8 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using Numerics.NET;
 using i2i_dotnet.Features.TargetedTab.Models;
 using i2i_dotnet.Shared.Stores;
+using MathNet.Numerics;
+using Numerics.NET.Curves;
+using OxyPlot;
 
 namespace i2i_dotnet.Features.TargetedTab.Services;
 
@@ -82,15 +86,11 @@ public class FindPeaksService : IFindPeaksService
 
 
         var analyteMatrix = BuildAnalyteMatrix(signalInten);
+        TimeMatrix timeMatrix = CreateTimeMatrix(_store.MSExperiment.GetLineScans().ToArray(), scanFilter);
+        analyteMatrix = AlignPeaks(analyteMatrix, timeMatrix);
 
         return new FindPeaksResult(
-            MassList: masslist,
-            AllMassDiff: allMassDiff,
-            AllClosestMass: allClosestMass,
-            AllIntensities: allIntensities,
-            FsMassDiff: fsMassDiff,
-            FsClosestMass: fsClosestMass,
-            SignalInten: signalInten,
+          
             AnalyteMatrix: analyteMatrix
         );
     }
@@ -193,26 +193,135 @@ public class FindPeaksService : IFindPeaksService
         return (target - sortedMz[lo] <= sortedMz[hi] - target) ? lo : hi;
     }
 
-    private static int FindClosestIndexLinear(double[] mz, double target)
+    
+    private TimeMatrix CreateTimeMatrix(
+        LineScan[] lineScans,
+        string scanFilterKey,
+        StringComparer? comparer = null)
     {
-         int bestIdx = 0;
-         double best = Math.Abs(mz[0] - target);
-         for (int i = 1; i < mz.Length; i++)
-         {
-             double d = Math.Abs(mz[i] - target);
-             if (d < best) { best = d; bestIdx = i; }
-         }
-         return bestIdx;
-     }
+        comparer ??= StringComparer.Ordinal;
+
+        if (string.IsNullOrWhiteSpace(scanFilterKey))
+            return new TimeMatrix { Rows = new List<TimeRow>(0) };
+
+        // Compute max size for *that* filter only
+        int maxSize = lineScans
+            .Where(ls => ls != null)
+            .Select(ls =>
+            {
+                var dict = ls!.GetSpectrasByScanFilter(comparer);
+                return dict.TryGetValue(scanFilterKey, out var arr) ? (arr?.Length ?? 0) : 0;
+            })
+            .DefaultIfEmpty(0)
+            .Max();
+
+        var matrix = new TimeMatrix { Rows = new List<TimeRow>(lineScans.Length) };
+
+        foreach (var ls in lineScans)
+        {
+            var padded = new double[maxSize];
+
+            if (ls != null)
+            {
+                var dict = ls.GetSpectrasByScanFilter(comparer);
+
+                if (dict.TryGetValue(scanFilterKey, out var spectra) && spectra != null)
+                {
+                    // CHANGE THIS to your actual time property
+                    var rt = spectra.Select(s => s.RetentionTime).ToArray();
+
+                    Array.Copy(rt, 0, padded, 0, Math.Min(rt.Length, maxSize));
+                }
+            }
+
+            matrix.Rows.Add(new TimeRow(padded));
+        }
+
+        return matrix;
+    }
+    
+   private List<double[,] > 
+    AlignPeaks(List<double[,]> analyteMatrix, TimeMatrix time_out)
+{
+    // max_time = max(time_out,[],'all');
+    double maxTime = MaxTime(time_out);
+    Console.WriteLine($"maxTime={maxTime}, nSim={(int)Math.Round(maxTime * 20.0 * 60.0)}");
+
+    // time_simulated = linspace(0,max_time,max_time*20*60);
+    int nSim = (int)Math.Round(maxTime * 20.0 * 60.0);
+    if (nSim < 2) nSim = 2;
+
+    double[] timeSimulated = Generate.LinearSpaced(nSim, 0.0, maxTime);
+
+    var aligned = new List<double[,]>(analyteMatrix.Count);
+
+    for (int i = 0; i < analyteMatrix.Count; i++)
+    {
+        double[,] ion = analyteMatrix[i];
+
+        int rows = ion.GetLength(0);
+        int cols = ion.GetLength(1);
+
+        var outIon = new double[rows, nSim];
+
+        for (int j = 0; j < rows; j++)
+        {
+            double[] time_axis_all = time_out.Rows[j].RetentionTimes;
+
+            // ind = time_axis > 0
+            var xList = new List<double>(cols);
+            var yList = new List<double>(cols);
+
+            int take = Math.Min(cols, time_axis_all.Length);
+
+            for (int c = 0; c < take; c++)
+            {
+                double t = time_axis_all[c];
+                if (t > 0)
+                {
+                    xList.Add(t);
+                    yList.Add(ion[j, c]);
+                }
+            }
+
+            if (xList.Count == 0)
+                continue;
+
+            double[] xValues = xList.ToArray();
+            double[] yValues = yList.ToArray();
+
+            // IMPORTANT: Numerics.NET requires strictly increasing xValues.
+            // If your retention times are already increasing per row, you can remove this.
+            // Otherwise keep it:
+           Array.Sort(xValues, yValues);
+
+            for (int q = 0; q < nSim; q++)
+            {
+                double x = timeSimulated[q];
+
+                outIon[j, q] = Interpolation.Nearest(
+                    xValues, yValues, x, outOfRangeMode: ExtrapolationMode.Clamp
+                );
+            }
+        }
+
+        aligned.Add(outIon);
+    }
+
+    return (aligned);
+}
+
+private static double MaxTime(TimeMatrix tm)
+{
+    double max = double.NegativeInfinity;
+    foreach (var row in tm.Rows)
+        foreach (var t in row.RetentionTimes)
+            if (t > max) max = t;
+    return max;
+}
 }
 
 public sealed record FindPeaksResult(
-    double[] MassList,
-    List<double[,]> AllMassDiff,
-    List<double[,]> AllClosestMass,
-    List<double[,]> AllIntensities,
-    List<double[,]> FsMassDiff,
-    List<double[,]> FsClosestMass,
-    List<double[,]> SignalInten,
+   
     List<double[,]> AnalyteMatrix
 );

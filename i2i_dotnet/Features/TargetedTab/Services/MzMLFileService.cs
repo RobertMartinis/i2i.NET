@@ -4,6 +4,10 @@ using System.Xml.Linq;
 using i2i_dotnet.Features.TargetedTab.Models;
 using System.Linq;
 using System.Threading.Tasks;
+using MathNet.Numerics;
+using Numerics.NET;
+using Numerics.NET.Curves;
+
 namespace i2i_dotnet.Features.TargetedTab.Services;
 
 public class MzMLFileService : ImzMLFileService
@@ -122,30 +126,45 @@ public class MzMLFileService : ImzMLFileService
                 System.Diagnostics.Debug.WriteLine(e);
             }
         });
+        
         int maxSize = linescans.Select(s => s.spectraCount).DefaultIfEmpty(0).Max();
         double[,] retentionTimes = new double[numFiles, maxSize];
+        
         for (int i = 0; i < numFiles; i++)
         {
             var ls = linescans[i];
             if (ls == null) continue;
 
-            // materialize retention times for this row
             double[] rt = ls.GetSpectras().Select(sp => sp.RetentionTime).ToArray();
 
             int len = Math.Min(rt.Length, maxSize);
             for (int c = 0; c < len; c++)
                 retentionTimes[i, c] = rt[c];
         }
+        
         exp.AddLineScans(linescans);
-        TimeMatrix tm = CreateTimeMatrix(linescans);
+        
         return (exp, _scanFilters.ToArray());
     }
 
-    private TimeMatrix CreateTimeMatrix(LineScan[] lineScans)
+    private TimeMatrix CreateTimeMatrix(
+        LineScan[] lineScans,
+        string scanFilterKey,
+        StringComparer? comparer = null)
     {
+        comparer ??= StringComparer.Ordinal;
+
+        if (string.IsNullOrWhiteSpace(scanFilterKey))
+            return new TimeMatrix { Rows = new List<TimeRow>(0) };
+
+        // Compute max size for *that* filter only
         int maxSize = lineScans
             .Where(ls => ls != null)
-            .Select(ls => ls.GetSpectras().Count()) 
+            .Select(ls =>
+            {
+                var dict = ls!.GetSpectrasByScanFilter(comparer);
+                return dict.TryGetValue(scanFilterKey, out var arr) ? (arr?.Length ?? 0) : 0;
+            })
             .DefaultIfEmpty(0)
             .Max();
 
@@ -157,8 +176,15 @@ public class MzMLFileService : ImzMLFileService
 
             if (ls != null)
             {
-                var rt = ls.GetSpectras().Select(sp => sp.RetentionTime).ToArray();
-                Array.Copy(rt, 0, padded, 0, Math.Min(rt.Length, maxSize));
+                var dict = ls.GetSpectrasByScanFilter(comparer);
+
+                if (dict.TryGetValue(scanFilterKey, out var spectra) && spectra != null)
+                {
+                    // CHANGE THIS to your actual time property
+                    var rt = spectra.Select(s => s.RetentionTime).ToArray();
+
+                    Array.Copy(rt, 0, padded, 0, Math.Min(rt.Length, maxSize));
+                }
             }
 
             matrix.Rows.Add(new TimeRow(padded));
@@ -166,5 +192,8 @@ public class MzMLFileService : ImzMLFileService
 
         return matrix;
     }
+
+
+    
 
 }

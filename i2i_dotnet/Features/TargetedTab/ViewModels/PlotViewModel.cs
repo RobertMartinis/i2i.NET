@@ -63,6 +63,7 @@ public sealed partial class PlotViewModel : ObservableObject, IDisposable
         plt.Legend.IsVisible = false;
         plt.HideAxesAndGrid();
         plt.Axes.Margins(0, 0);
+        plt.Axes.AutoScale();
         PlotControl.Refresh();
     }
 
