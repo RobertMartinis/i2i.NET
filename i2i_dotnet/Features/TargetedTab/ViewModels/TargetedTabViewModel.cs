@@ -1,5 +1,6 @@
 ﻿using i2i_dotnet.Features.TargetedTab.Services;
 using i2i_dotnet.Shared.Stores;
+using MahApps.Metro.Controls.Dialogs;
 using ScottPlot;
 
 namespace i2i_dotnet.Features.TargetedTab.ViewModels;
@@ -12,9 +13,10 @@ public class TargetedTabViewModel
         IFolderDialogService dialog,
         IAnalyteFileService analyteFileService,
         IFindPeaksService findPeaksService,
-        ExperimentStore experimentStore)
+        ExperimentStore experimentStore,
+        IDialogCoordinator dialogCoordinator)
     {
-        WorkflowPanel = new WorkflowPanelViewModel(fileService, dialog, analyteFileService, findPeaksService, experimentStore);
+        WorkflowPanel = new WorkflowPanelViewModel(fileService, dialog, analyteFileService, findPeaksService, experimentStore, dialogCoordinator);
         PlotViewPanel = new PlotViewModel(experimentStore);
     }
 }

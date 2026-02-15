@@ -8,6 +8,8 @@
     xmlns:mah="http://metro.mahapps.com/winfx/xaml/controls"
     xmlns:targetedViews="clr-namespace:i2i_dotnet.Features.TargetedTab.Views"
     xmlns:views="clr-namespace:i2i_dotnet.Features.TargetedTab.Views"
+    xmlns:Dialog="clr-namespace:MahApps.Metro.Controls.Dialogs;assembly=MahApps.Metro"
+    mah:DialogParticipation.Register="{Binding TargetedTab.WorkflowPanel}"
 
     mc:Ignorable="av"
     x:Class="i2i_dotnet.MainWindow"

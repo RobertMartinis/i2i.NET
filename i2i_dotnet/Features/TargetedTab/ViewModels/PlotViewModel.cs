@@ -21,6 +21,8 @@ public sealed partial class PlotViewModel : ObservableObject, IDisposable
         _experimentStore = experimentStore;
 
         _experimentStore.PropertyChanged += ExperimentStoreOnPropertyChanged;
+        
+        PlotControl.UserInputProcessor.Disable();
 
         ReplotFromStore();
     }

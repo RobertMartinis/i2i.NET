@@ -86,7 +86,7 @@ namespace i2i_dotnet.Features.TargetedTab.Services
                 var spectrumFromFile = LoadFileToMsSpectra(rawFile);
                 lineScans[i] = spectrumFromFile;
                 int step = Interlocked.Increment(ref done);
-                progress?.Report((step + 1) * 100.0 / rawDirectories.Length);
+                progress?.Report((step + 1)  / (double)rawDirectories.Length);
             }
             catch (Exception ex)
             {

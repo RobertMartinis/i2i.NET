@@ -118,7 +118,7 @@ public class MzMLFileService : ImzMLFileService
                 LineScan spectrumFromFile = LoadFileToMsSpectra(mzmlfiles[i]);
                 linescans[i] = spectrumFromFile;
                 int step = Interlocked.Increment(ref done);
-                progress?.Report((step) * 100.0 / mzmlfiles.Length);
+                progress?.Report((1+step) / (double)mzmlfiles.Length);
             }
 
             catch (Exception e)

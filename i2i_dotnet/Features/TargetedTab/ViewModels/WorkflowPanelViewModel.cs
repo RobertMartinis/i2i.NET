@@ -6,6 +6,7 @@ using CommunityToolkit.Mvvm.Input;
 using i2i_dotnet.Features.TargetedTab.Models;
 using i2i_dotnet.Features.TargetedTab.Services;
 using i2i_dotnet.Shared.Stores;
+using MahApps.Metro.Controls.Dialogs;
 using ThermoFisher.CommonCore.Data;
 using RelayCommand = i2i_dotnet.Core.RelayCommand;
 
@@ -25,6 +26,7 @@ public sealed partial class WorkflowPanelViewModel : ObservableObject
     private readonly IFolderDialogService _folderDialog;
     private readonly IAnalyteFileService _analyteFileService;
     private readonly IFindPeaksService _findPeaksService;
+    private readonly IDialogCoordinator _dialogCoordinator;
     public ObservableCollection<string> AnalyteList { get; set; } = new ObservableCollection<string>();
     
     private ExperimentStore _experimentStore;
@@ -104,13 +106,15 @@ public sealed partial class WorkflowPanelViewModel : ObservableObject
         IFolderDialogService folderDialog, 
         IAnalyteFileService analyteFileService,
         IFindPeaksService findPeaksService,
-        ExperimentStore experimentStore)
+        ExperimentStore experimentStore,
+        IDialogCoordinator dialogCoordinator)
     {
         _fileService = fileService;
         _folderDialog = folderDialog;
         _analyteFileService = analyteFileService;
         _findPeaksService = findPeaksService;
         _experimentStore = experimentStore;
+        _dialogCoordinator = dialogCoordinator;
         LoadFilesCommand = new RelayCommand<ExperimentFileType>(async (value) => await LoadFilesAsync(value));
 
         LoadAnalyteListCommand = new RelayCommand(LoadAnalytes, () => CanLoadAnalytes);
@@ -133,9 +137,20 @@ public sealed partial class WorkflowPanelViewModel : ObservableObject
             return;
         
         IsLoading = true;
-        Progress = 0;
+
+        string title = type == ExperimentFileType.mzML ? "Loading mzML files" : "Loading raw files...";
+        ProgressDialogController controller = await _dialogCoordinator.ShowProgressAsync(this, title, "");
+
+        var progress = new Progress<double>(p =>
+        {
+
+            p = Math.Clamp(p, 0.0, 1.0);
+            controller.SetProgress(p);    
+            controller.SetMessage($"Progress: {(int)(p * 100)}%");
+
+        });
         
-        var progress = new Progress<double>(p => Progress = p);
+        Progress = 0;
         Experiment exp = new Experiment();
         string[] uniqueFilters;
         UpdateOverallStatus("Loading experiment...", Brushes.Gold);
@@ -150,9 +165,10 @@ public sealed partial class WorkflowPanelViewModel : ObservableObject
             (exp, uniqueFilters) = await Task.Run(() =>
                 _fileService.LoadRawFilesFromFolder(folder, progress)
             );
-
         }
 
+        await controller.CloseAsync();
+        
         ScanFilters.AddRange(uniqueFilters);
         SelectedScanFilter = ScanFilters.FirstOrDefault();
         FileCount = exp.LineCount;
